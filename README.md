@@ -11,3 +11,11 @@ Ett fullstackprojekt där användare kan rapportera felparkerade bilar och parke
 ## Tech-stack
 - Frontend: Expo (React Native)
 - Backend: Spring Boot + PostgreSQL
+
+## Komma igång
+
+### Frontend
+```bash
+cd frontend
+npx expo start
+```

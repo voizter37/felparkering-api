@@ -1,0 +1,1741 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Felparkering API",
+    "description": "Rest API för att hantera felparkerade fordon",
+    "contact": {},
+    "version": "1.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080",
+      "variables": {}
+    }
+  ],
+  "paths": {
+    "/login": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Login user",
+        "description": "### POST /login\n\nLoggar in användare med e-post och lösenord.  \nReturnerar en JWT-token som används för autentisering.",
+        "operationId": "Loginuser",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Successfulresponse"
+                    },
+                    {
+                      "example": {
+                        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6...",
+                        "email": "user@example.com",
+                        "role": "CUSTOMER"
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6...",
+                  "email": "user@example.com",
+                  "role": "CUSTOMER"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Missingcredentials1"
+                    },
+                    {
+                      "example": {
+                        "error": "Missing credentials"
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "error": "Missing credentials"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Invalidcredentials1"
+                    },
+                    {
+                      "example": {
+                        "error": "Invalid credentials"
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "error": "Invalid credentials"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Usernotfound1"
+                    },
+                    {
+                      "example": {
+                        "error": "User not found"
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "error": "User not found"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "security": []
+      }
+    },
+    "/register": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Register new user",
+        "description": "### POST /register\n\nRegistrerar en användare (CUSTOMER) med e-post och lösenord.",
+        "operationId": "Registernewuser",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Successfulresponse1"
+                    },
+                    {
+                      "example": {
+                        "message": "User registered successfully",
+                        "email": "user@example.com",
+                        "role": "CUSTOMER"
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "message": "User registered successfully",
+                  "email": "user@example.com",
+                  "role": "CUSTOMER"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Missingcredentials1"
+                    },
+                    {
+                      "example": {
+                        "error": "Missing credentials"
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "error": "Missing credentials"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/reports": {
+      "post": {
+        "tags": [
+          "Reports"
+        ],
+        "summary": "Create new report",
+        "description": "### POST /reports\n\nSkapar en felparkeringsrapport.\n\n#### Behörighet:\n\n- `ADMIN`: Ja\n    \n- `ATTENDANT`: Nej (403)\n    \n- `CUSTOMER`: Ja",
+        "operationId": "Createnewreport",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Successfulresponse2"
+                    },
+                    {
+                      "example": {
+                        "message": "Report created successfully",
+                        "id": "12",
+                        "timestamp": "2025-06-17T14:22:00",
+                        "status": "NEW",
+                        "attendantGroup": {
+                          "id": 1,
+                          "namn": "Stockholm Södra"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "message": "Report created successfully",
+                  "id": "12",
+                  "timestamp": "2025-06-17T14:22:00",
+                  "status": "NEW",
+                  "attendantGroup": {
+                    "id": 1,
+                    "namn": "Stockholm Södra"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Missingcredentials1"
+                    },
+                    {
+                      "example": {
+                        "error": "Missing credentials"
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "error": "Missing credentials"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Invalidrequest1"
+                    },
+                    {
+                      "example": {
+                        "error": "Missing or invalid token"
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "error": "Missing or invalid token"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Accessdenied1"
+                    },
+                    {
+                      "example": {
+                        "error": "You do not have permission to create a report"
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "error": "You do not have permission to create a report"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "get": {
+        "tags": [
+          "Reports"
+        ],
+        "summary": "Get all reports",
+        "description": "### GET /reports\n\nHämtar en lista med alla felparkeringsrapporter.\n\n#### Behörighet:\n\nRoll:\n\n- `ADMIN`: ser alla rapporter\n    \n- `ATTENDANT`: ser endast rapporter för sin egen vaktgrupp\n    \n- `CUSTOMER`: ej tillåten (403)",
+        "operationId": "Getallreports",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Successfulresponse3"
+                  },
+                  "description": "",
+                  "example": [
+                    {
+                      "id": 12,
+                      "location": "Södra vägen 1, Stad",
+                      "licensePlate": "ABC123",
+                      "category": "Blockerar utfart",
+                      "timestamp": "2025-06-17T14:22:00",
+                      "status": "NEW",
+                      "attendantGroup": {
+                        "id": 1,
+                        "namn": "Stockholm Södra"
+                      }
+                    },
+                    {
+                      "id": 13,
+                      "location": "Norra vägen 3, Stad",
+                      "licensePlate": "ABC123",
+                      "category": "Saknar tillstånd",
+                      "timestamp": "2025-06-17T15:17:00",
+                      "status": "NEW",
+                      "attendantGroup": {
+                        "id": 1,
+                        "namn": "Stockholm Södra"
+                      }
+                    }
+                  ]
+                },
+                "example": [
+                  {
+                    "id": 12,
+                    "location": "Södra vägen 1, Stad",
+                    "licensePlate": "ABC123",
+                    "category": "Blockerar utfart",
+                    "timestamp": "2025-06-17T14:22:00",
+                    "status": "NEW",
+                    "attendantGroup": {
+                      "id": 1,
+                      "namn": "Stockholm Södra"
+                    }
+                  },
+                  {
+                    "id": 13,
+                    "location": "Norra vägen 3, Stad",
+                    "licensePlate": "ABC123",
+                    "category": "Saknar tillstånd",
+                    "timestamp": "2025-06-17T15:17:00",
+                    "status": "NEW",
+                    "attendantGroup": {
+                      "id": 1,
+                      "namn": "Stockholm Södra"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Invalidrequest1"
+                    },
+                    {
+                      "example": {
+                        "error": "Missing or invalid token"
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "error": "Missing or invalid token"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Accessdenied1"
+                    },
+                    {
+                      "example": {
+                        "error": "You do not have permission to get all reports"
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "error": "You do not have permission to get all reports"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/reports/{id}": {
+      "get": {
+        "tags": [
+          "Reports"
+        ],
+        "summary": "Get a report",
+        "description": "### GET /reports/{id}\n\nHämtar detaljerad information om en specifik felparkeringsrapport.\n\n#### Behörighet:\n\n- `ADMIN`: har tillgång till alla rapporter\n    \n- `ATTENDANT`: har tillgång om rapporten tillhör samma vaktgrupp\n    \n- `CUSTOMER`: ej tillåtet (403)\n    \n\n#### Parameter\n\n- `id` _(Long)_ – rapportens ID",
+        "operationId": "Getareport",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Successfulresponse3"
+                    },
+                    {
+                      "example": {
+                        "id": 12,
+                        "location": "Södra vägen 1, Stad",
+                        "licensePlate": "ABC123",
+                        "category": "Blockerar utfart",
+                        "timestamp": "2025-06-17T14:22:00",
+                        "status": "NEW",
+                        "attendantGroup": {
+                          "id": 1,
+                          "namn": "Stockholm Södra"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "id": 12,
+                  "location": "Södra vägen 1, Stad",
+                  "licensePlate": "ABC123",
+                  "category": "Blockerar utfart",
+                  "timestamp": "2025-06-17T14:22:00",
+                  "status": "NEW",
+                  "attendantGroup": {
+                    "id": 1,
+                    "namn": "Stockholm Södra"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Notfound1"
+                    },
+                    {
+                      "example": {
+                        "error": "Report not found"
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "error": "Report not found"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Invalidrequest1"
+                    },
+                    {
+                      "example": {
+                        "error": "Missing or invalid token"
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "error": "Missing or invalid token"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Accessdenied1"
+                    },
+                    {
+                      "example": {
+                        "error": "You do not have permission to get a report"
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "error": "You do not have permission to get a report"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/reports/{id}/status": {
+      "put": {
+        "tags": [
+          "Reports"
+        ],
+        "summary": "Update report status",
+        "description": "### PUT/reports/{id}\n\nUppdaterar informationen för en specifik felanmälan, t.ex. ändrar dess status.\n\n#### Behörighet:\n\n- `ADMIN`: kan uppdatera alla fält\n    \n- `ATTENDANT`: kan ändra status om rapporten tillhör deras vaktgrupp\n    \n- `CUSTOMER`: ej tillåtet (403)\n    \n\n#### Parameter\n\n- `id` _(Long)_ – rapportens ID",
+        "operationId": "Updatereportstatus",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "",
+            "headers": {},
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "{\r\n    \"id\": 12,\r\n    \"location\": \"Södra vägen 1, Stad\",\r\n    \"licensePlate\": \"ABC123\",\r\n    \"category\": \"Blockerar utfart\",\r\n    \"timestamp\": \"2025-06-17T14:22:00\",\r\n    \"status\": \"RESOLVED\",\r\n    \"attendantGroup\": {\r\n            \"id\": 1,\r\n            \"namn\": \"Stockholm Södra\"\r\n        }\r\n    \"assignedTo\": {\r\n        \"id\": 7,\r\n        \"email\": \"vakt@example.com\"\r\n    }\r\n}"
+                },
+                "example": "{\r\n    \"id\": 12,\r\n    \"location\": \"Södra vägen 1, Stad\",\r\n    \"licensePlate\": \"ABC123\",\r\n    \"category\": \"Blockerar utfart\",\r\n    \"timestamp\": \"2025-06-17T14:22:00\",\r\n    \"status\": \"RESOLVED\",\r\n    \"attendantGroup\": {\r\n            \"id\": 1,\r\n            \"namn\": \"Stockholm Södra\"\r\n        }\r\n    \"assignedTo\": {\r\n        \"id\": 7,\r\n        \"email\": \"vakt@example.com\"\r\n    }\r\n}"
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Accessdenied1"
+                    },
+                    {
+                      "example": {
+                        "error": "You do not have permission to update a report"
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "error": "You do not have permission to update a report"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/admin/attendant": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Create Attendant",
+        "description": "### POST /admin/attendant\n\nSkapar en parkeringsvakt och tilldelar den en vaktgrupp.\n\n#### Behörighet:\n\n- `ADMIN`: Ja\n    \n- `ATTENDANT`: Nej (403)\n    \n- `CUSTOMER`: Nej (403)",
+        "operationId": "CreateAttendant",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Successfulresponse5"
+                    },
+                    {
+                      "example": {
+                        "message": "Vakt registrerad",
+                        "email": "vakt@example.com",
+                        "attendantGroup": {
+                          "id": 1,
+                          "namn": "Stockholm Södra"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "message": "Vakt registrerad",
+                  "email": "vakt@example.com",
+                  "attendantGroup": {
+                    "id": 1,
+                    "namn": "Stockholm Södra"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Missingcredentials1"
+                    },
+                    {
+                      "example": {
+                        "error": "Missing credentials"
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "error": "Missing credentials"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Invalidrequest1"
+                    },
+                    {
+                      "example": {
+                        "error": "Missing or invalid token"
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "error": "Missing or invalid token"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Accessdenied1"
+                    },
+                    {
+                      "example": {
+                        "error": "You do not have permission to create an attendant"
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "error": "You do not have permission to create an attendant"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/admin/users": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Get all users",
+        "description": "### GET /admin/users\n\nHämtar en lista med alla användare.\n\n#### Behörighet:\n\nRoll:\n\n- `ADMIN`: ser alla användare\n    \n- `ATTENDANT`: ej tillåten (403)\n    \n- `CUSTOMER`: ej tillåten (403)",
+        "operationId": "Getallusers",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Successfulresponse6"
+                  },
+                  "description": ""
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Invalidrequest1"
+                    },
+                    {
+                      "example": {
+                        "error": "Missing or invalid token"
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "error": "Missing or invalid token"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Accessdenied1"
+                    },
+                    {
+                      "example": {
+                        "error": "You do not have permission to get all users"
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "error": "You do not have permission to get all users"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/admin/users/{id}": {
+      "delete": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Delete user",
+        "description": "### DELETE /admin/users/{id}\n\nTar bort en användare med {id}.\n\n#### Behörighet:\n\n- `ADMIN`: Ja\n    \n- `ATTENDANT`: ej tillåtet (403)\n    \n- `CUSTOMER`: ej tillåtet (403)\n    \n\n#### Parameter\n\n- `id` _(Long)_ – användarens ID",
+        "operationId": "Deleteuser",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Successfulresponse7"
+                    },
+                    {
+                      "example": {
+                        "message": "User was successfully deleted"
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "message": "User was successfully deleted"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Notfound1"
+                    },
+                    {
+                      "example": {
+                        "error": "User not found"
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "error": "User not found"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Invalidrequest1"
+                    },
+                    {
+                      "example": {
+                        "error": "Missing or invalid token"
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "error": "Missing or invalid token"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Accessdenied1"
+                    },
+                    {
+                      "example": {
+                        "error": "You do not have permission to delete a user"
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "error": "You do not have permission to delete a user"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/admin/attendants": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Create Attendant Group",
+        "description": "### POST /admin/attendants\n\nSkapar en ny vaktgrupp.\n\n#### Behörighet:\n\n- `ADMIN`: Ja\n    \n- `ATTENDANT`: Nej (403)\n    \n- `CUSTOMER`: Nej (403)",
+        "operationId": "CreateAttendantGroup",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Successfulresponse8"
+                    },
+                    {
+                      "example": {
+                        "message": "Attendant group was successfully created",
+                        "id": 1,
+                        "namn": "Stockholm Södra"
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "message": "Attendant group was successfully created",
+                  "id": 1,
+                  "namn": "Stockholm Södra"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Missingcredentials1"
+                    },
+                    {
+                      "example": {
+                        "error": "Missing credentials"
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "error": "Missing credentials"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Invalidrequest1"
+                    },
+                    {
+                      "example": {
+                        "error": "Missing or invalid token"
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "error": "Missing or invalid token"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Accessdenied1"
+                    },
+                    {
+                      "example": {
+                        "error": "You do not have permission to create an attendant group"
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "error": "You do not have permission to create an attendant group"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Get all Attendant Groups",
+        "description": "### GET /admin/attendants\n\nHämtar en lista med alla vaktgrupper.\n\n#### Behörighet:\n\nRoll:\n\n- `ADMIN`: ser alla vaktgrupper\n    \n- `ATTENDANT`: ej tillåten (403)\n    \n- `CUSTOMER`: ej tillåten (403)",
+        "operationId": "GetallAttendantGroups",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Successfulresponse9"
+                  },
+                  "description": "",
+                  "example": [
+                    {
+                      "id": 1,
+                      "namn": "Stockholm Södra"
+                    },
+                    {
+                      "id": 2,
+                      "namn": "Stockholm Norra"
+                    }
+                  ]
+                },
+                "example": [
+                  {
+                    "id": 1,
+                    "namn": "Stockholm Södra"
+                  },
+                  {
+                    "id": 2,
+                    "namn": "Stockholm Norra"
+                  }
+                ]
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Invalidrequest1"
+                    },
+                    {
+                      "example": {
+                        "error": "Missing or invalid token"
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "error": "Missing or invalid token"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Accessdenied1"
+                    },
+                    {
+                      "example": {
+                        "error": "You do not have permission to get all attendant groups"
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "error": "You do not have permission to get all attendant groups"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/admin/attendants/{id}": {
+      "delete": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Delete Attendant Group",
+        "description": "### DELETE /admin/attendants/{id}\n\nTar bort en vaktgrupp med {id}.\n\n#### Behörighet:\n\n- `ADMIN`: Ja\n    \n- `ATTENDANT`: ej tillåtet (403)\n    \n- `CUSTOMER`: ej tillåtet (403)\n    \n\n#### Parameter\n\n- `id` _(Long)_ – vaktgruppens ID",
+        "operationId": "DeleteAttendantGroup",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Successfulresponse7"
+                    },
+                    {
+                      "example": {
+                        "message": "Attendant group was successfully deleted"
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "message": "Attendant group was successfully deleted"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Notfound1"
+                    },
+                    {
+                      "example": {
+                        "error": "Attendant group not found"
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "error": "Attendant group not found"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Invalidrequest1"
+                    },
+                    {
+                      "example": {
+                        "error": "Missing or invalid token"
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "error": "Missing or invalid token"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Accessdenied1"
+                    },
+                    {
+                      "example": {
+                        "error": "You do not have permission to delete an attendant group"
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "error": "You do not have permission to delete an attendant group"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Successfulresponse": {
+        "title": "Successfulresponse",
+        "required": [
+          "token",
+          "email",
+          "role"
+        ],
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6...",
+          "email": "user@example.com",
+          "role": "CUSTOMER"
+        }
+      },
+      "Missingcredentials1": {
+        "title": "Missingcredentials1",
+        "required": [
+          "error"
+        ],
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "error": "Missing credentials"
+        }
+      },
+      "Invalidcredentials1": {
+        "title": "Invalidcredentials1",
+        "required": [
+          "error"
+        ],
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "error": "Invalid credentials"
+        }
+      },
+      "Usernotfound1": {
+        "title": "Usernotfound1",
+        "required": [
+          "error"
+        ],
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "error": "User not found"
+        }
+      },
+      "Successfulresponse1": {
+        "title": "Successfulresponse1",
+        "required": [
+          "message",
+          "email",
+          "role"
+        ],
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "message": "User registered successfully",
+          "email": "user@example.com",
+          "role": "CUSTOMER"
+        }
+      },
+      "Successfulresponse2": {
+        "title": "Successfulresponse2",
+        "required": [
+          "message",
+          "id",
+          "timestamp",
+          "status",
+          "attendantGroup"
+        ],
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "attendantGroup": {
+            "$ref": "#/components/schemas/AttendantGroup"
+          }
+        },
+        "example": {
+          "message": "Report created successfully",
+          "id": "12",
+          "timestamp": "2025-06-17T14:22:00",
+          "status": "NEW",
+          "attendantGroup": {
+            "id": 1,
+            "namn": "Stockholm Södra"
+          }
+        }
+      },
+      "AttendantGroup": {
+        "title": "AttendantGroup",
+        "required": [
+          "id",
+          "namn"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "namn": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "id": 1,
+          "namn": "Stockholm Södra"
+        }
+      },
+      "Invalidrequest1": {
+        "title": "Invalidrequest1",
+        "required": [
+          "error"
+        ],
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "error": "Missing or invalid token"
+        }
+      },
+      "Accessdenied1": {
+        "title": "Accessdenied1",
+        "required": [
+          "error"
+        ],
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "error": "You do not have permission to create a report"
+        }
+      },
+      "Successfulresponse3": {
+        "title": "Successfulresponse3",
+        "required": [
+          "id",
+          "location",
+          "licensePlate",
+          "category",
+          "timestamp",
+          "status",
+          "attendantGroup"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "location": {
+            "type": "string"
+          },
+          "licensePlate": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "attendantGroup": {
+            "$ref": "#/components/schemas/AttendantGroup"
+          }
+        },
+        "example": {
+          "id": 12,
+          "location": "Södra vägen 1, Stad",
+          "licensePlate": "ABC123",
+          "category": "Blockerar utfart",
+          "timestamp": "2025-06-17T14:22:00",
+          "status": "NEW",
+          "attendantGroup": {
+            "id": 1,
+            "namn": "Stockholm Södra"
+          }
+        }
+      },
+      "Notfound1": {
+        "title": "Notfound1",
+        "required": [
+          "error"
+        ],
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "error": "Report not found"
+        }
+      },
+      "Successfulresponse5": {
+        "title": "Successfulresponse5",
+        "required": [
+          "message",
+          "email",
+          "attendantGroup"
+        ],
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "attendantGroup": {
+            "$ref": "#/components/schemas/AttendantGroup"
+          }
+        },
+        "example": {
+          "message": "Vakt registrerad",
+          "email": "vakt@example.com",
+          "attendantGroup": {
+            "id": 1,
+            "namn": "Stockholm Södra"
+          }
+        }
+      },
+      "Successfulresponse6": {
+        "title": "Successfulresponse6",
+        "required": [
+          "id",
+          "email",
+          "role",
+          "attendantGroup"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "email": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "attendantGroup": {
+            "oneOf": [
+              {
+                "allOf": [
+                  {
+                    "oneOf": [
+                      {
+                        "nullable": true
+                      },
+                      {
+                        "$ref": "#/components/schemas/AttendantGroup4"
+                      }
+                    ]
+                  },
+                  {}
+                ]
+              },
+              {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/AttendantGroup"
+                  },
+                  {
+                    "example": {
+                      "id": 1,
+                      "namn": "Stockholm Södra"
+                    }
+                  }
+                ]
+              },
+              {
+                "nullable": true
+              }
+            ]
+          }
+        }
+      },
+      "AttendantGroup4": {
+        "title": "AttendantGroup4",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "namn": {
+            "type": "string"
+          }
+        }
+      },
+      "Successfulresponse7": {
+        "title": "Successfulresponse7",
+        "required": [
+          "message"
+        ],
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "message": "User was successfully deleted"
+        }
+      },
+      "Successfulresponse8": {
+        "title": "Successfulresponse8",
+        "required": [
+          "message",
+          "id",
+          "namn"
+        ],
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "namn": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "message": "Attendant group was successfully created",
+          "id": 1,
+          "namn": "Stockholm Södra"
+        }
+      },
+      "Successfulresponse9": {
+        "title": "Successfulresponse9",
+        "required": [
+          "id",
+          "namn"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "namn": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "id": 1,
+          "namn": "Stockholm Södra"
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearer": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  },
+  "security": [],
+  "tags": [
+    {
+      "name": "Auth"
+    },
+    {
+      "name": "Reports"
+    },
+    {
+      "name": "Admin"
+    }
+  ]
+}

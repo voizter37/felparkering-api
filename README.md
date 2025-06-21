@@ -33,4 +33,4 @@ Bygger en container enligt [`docker-compose.yml`](https://github.com/voizter37/f
 
 ### API-specifikation
 
-Fullständig specifikation enligt [`backend/docs/api-spec.json`](backend/docs/api-spec.json)
+Fullständig specifikation enligt [`backend/docs/api-spec.yaml`](backend/docs/api-spec.yaml)

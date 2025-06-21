@@ -5,8 +5,6 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import jakarta.persistence.*;
 
-import se.voizter.felparkering.api.model.AttendantGroup;
-import se.voizter.felparkering.api.model.User;
 import se.voizter.felparkering.api.type.Status;
 
 @Entity
@@ -76,6 +74,22 @@ public class Report {
 
     public void setCategory(String category) {
         this.category = category;
+    }
+
+    public Instant getCreatedOn() {
+        return createdOn;
+    }
+
+    public void setCreatedOn(Instant createdOn) {
+        this.createdOn = createdOn;
+    }
+
+    public Instant getUpdatedOn() {
+        return updatedOn;
+    }
+
+    public void setUpdatedOn(Instant updatedOn) {
+        this.updatedOn = updatedOn;
     }
 
     public Status getStatus() {

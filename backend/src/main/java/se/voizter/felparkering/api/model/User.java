@@ -2,7 +2,7 @@ package se.voizter.felparkering.api.model;
 
 import jakarta.persistence.*;
 import se.voizter.felparkering.api.model.AttendantGroup;
-import se.voizter.felparkering.api.enums.Role;
+import se.voizter.felparkering.api.type.Role;
 
 @Entity
 @Table(name = "users")

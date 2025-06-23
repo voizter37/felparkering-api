@@ -7,12 +7,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import se.voizter.felparkering.api.model.AttendantGroup;
 import se.voizter.felparkering.api.repository.AttendantGroupRepository;
 
 @RestController
+@RequestMapping("/attendants")
 public class AttendantGroupController {
 
     private final AttendantGroupRepository repository;
@@ -21,17 +23,17 @@ public class AttendantGroupController {
         this.repository = repository;
     }
 
-    @GetMapping("/attendants")
+    @GetMapping
     List<AttendantGroup> all() {
         return repository.findAll();
     }
 
-    @PostMapping("/attendants")
+    @PostMapping
     AttendantGroup createAttendant(@RequestBody AttendantGroup group) {
         return repository.save(group);
     }
 
-    @DeleteMapping("/attendants/{id}")
+    @DeleteMapping("/{id}")
     void deleteGroup(@PathVariable Long id) {
         repository.deleteById(id);
     }

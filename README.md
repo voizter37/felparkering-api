@@ -29,6 +29,14 @@ Bygger en container enligt [`docker-compose.yml`](https://github.com/voizter37/f
 - Startar backend på `http://localhost:8080/` 
 - Startar en PostgreSQL-databas som backend är kopplad till.
 
+## Tester
+
+### Köra backend-tester
+```bash
+cd backend
+./gradlew test
+```
+
 ## Dokumentation
 
 ### API-specifikation

@@ -1,4 +1,4 @@
-package se.voizter.felparkering.api;
+package se.voizter.felparkering.api.repository;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -15,9 +15,6 @@ import org.springframework.dao.DataIntegrityViolationException;
 import se.voizter.felparkering.api.model.AttendantGroup;
 import se.voizter.felparkering.api.model.Report;
 import se.voizter.felparkering.api.model.User;
-import se.voizter.felparkering.api.repository.AttendantGroupRepository;
-import se.voizter.felparkering.api.repository.ReportRepository;
-import se.voizter.felparkering.api.repository.UserRepository;
 import se.voizter.felparkering.api.type.Role;
 import se.voizter.felparkering.api.type.Status;
 

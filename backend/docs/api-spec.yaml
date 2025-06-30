@@ -408,7 +408,7 @@ paths:
       deprecated: false
       security:
         - bearer: []
-  /reports/{id}/status:
+  /reports/{id}:
     put:
       tags:
         - Reports

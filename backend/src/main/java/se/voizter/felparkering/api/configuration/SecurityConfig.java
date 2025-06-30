@@ -3,6 +3,7 @@ package se.voizter.felparkering.api.configuration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -40,9 +41,9 @@ public class SecurityConfig {
      */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf(AbstractHttpConfigurer::disable); // Inaktiverar CSRF då vi använder JWT.
-
-        http.authorizeHttpRequests(auth -> auth // Definerar behörigheter till olika endpoints
+        http.csrf(AbstractHttpConfigurer::disable) // Inaktiverar CSRF då vi använder JWT.
+            .cors(Customizer.withDefaults())
+            .authorizeHttpRequests(auth -> auth // Definerar behörigheter till olika endpoints
             .requestMatchers("/login", "/register").permitAll()
             .requestMatchers("/admin/**").hasRole("ADMIN")
             .requestMatchers("/reports").hasAnyRole("ADMIN", "ATTENDANT")

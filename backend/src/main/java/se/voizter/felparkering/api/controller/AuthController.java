@@ -1,9 +1,11 @@
 package se.voizter.felparkering.api.controller;
 
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,23 +25,35 @@ public class AuthController {
     private UserRepository userRepository;
 
     @PostMapping("/login")
-    public Map<String, String> login(@RequestBody Map<String, String> login) {
-        String email = login.get("email");
-        String password = login.get("password");
+    public ResponseEntity<?> login(@RequestBody Map<String, String> body) {
+        String email = body.get("email");
+        String password = body.get("password");
 
-        User user = userRepository.findByEmail(email)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        if (email == null || password == null) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Missing credentials"));
+        }
+
+        Optional<User> optionalUser = userRepository.findByEmail(email);
+        if (optionalUser.isEmpty()) {
+            return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(Map.of("error", "User not found"));
+        }
+
+        User user = optionalUser.get();
 
         if (!user.getPassword().equals(password)) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials");
+            return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(Map.of("error", "Invalid credentials"));
         }
 
         String token = jwtProvider.generateToken(email, user.getRole());
 
-        return Map.of(
+        return ResponseEntity.ok(Map.of(
             "token", token,
             "email", email,
             "password", password
-        );
+        ));
     }
 }

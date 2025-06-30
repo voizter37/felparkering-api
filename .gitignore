@@ -1,5 +1,6 @@
 # === Backend (Java / Gradle / Spring Boot) ===
 /backend/build/
+/backend/bin/
 /backend/.gradle/
 /backend/*.jar
 /backend/.env

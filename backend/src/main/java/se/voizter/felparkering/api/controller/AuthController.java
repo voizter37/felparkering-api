@@ -14,6 +14,7 @@ import org.springframework.web.server.ResponseStatusException;
 import se.voizter.felparkering.api.model.User;
 import se.voizter.felparkering.api.repository.UserRepository;
 import se.voizter.felparkering.api.security.JwtProvider;
+import se.voizter.felparkering.api.type.Role;
 
 @RestController
 public class AuthController {
@@ -53,7 +54,45 @@ public class AuthController {
         return ResponseEntity.ok(Map.of(
             "token", token,
             "email", email,
-            "password", password
+            "role", user.getRole()
+        ));
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@RequestBody Map<String, String> body) {
+        String email = body.get("email");
+        String password = body.get("password");
+        String confPassword = body.get("confPassword");
+
+        if (email == null || password == null) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Missing credentials"));
+        }
+
+        Optional<User> optionalUser = userRepository.findByEmail(email);
+        if (optionalUser.isPresent()) {
+            return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(Map.of("error", "User already exists"));
+        }
+
+        if (!password.equals(confPassword)) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Password and confirmation does not match"));
+        }
+
+        User user = new User();
+        user.setEmail(email);
+        user.setPassword(password);
+        user.setRole(Role.CUSTOMER);
+        
+        userRepository.save(user);
+
+        String token = jwtProvider.generateToken(email, user.getRole());
+
+        return ResponseEntity.ok(Map.of(
+            "token", token,
+            "message", "User registered successfully",
+            "email", email,
+            "role", user.getRole()
         ));
     }
 }

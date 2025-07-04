@@ -109,12 +109,31 @@ paths:
           content:
             application/json:
               schema:
-                allOf:
+                oneOf:
                   - $ref: '#/components/schemas/ErrorMissingCredentials'
+                  - $ref: '#/components/schemas/ErrorPasswordsDontMatch'
+              examples:
+                missingCredentials: 
+                  summary: Missing credentials
+                  value:
+                    error: Missing credentials
+                passwordMismatch:
+                  summary: Password and confirmation does not match
+                  value:
+                    error: Password and confirmation does not match
+        '409':
+          description: Conflict
+          headers: {}
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ErrorUserConflict'
                   - example:
-                      error: Missing credentials
+                      message: 
+                      error: User already exists
               example:
-                error: Missing credentials
+                error: User already exists
       deprecated: false
   /reports:
     post:
@@ -408,7 +427,6 @@ paths:
       deprecated: false
       security:
         - bearer: []
-  /reports/{id}:
     put:
       tags:
         - Reports
@@ -995,6 +1013,26 @@ components:
           type: string
       example:
         error: User not found
+    ErrorUserConflict:
+      title: ErrorUserConflict
+      required:
+        - message
+      type: object
+      properties:
+        error:
+          type: string
+      example:
+        error: User already exists
+    ErrorPasswordsDontMatch:
+      title: ErrorPasswordsDontMatch
+      required:
+        - message
+      type: object
+      properties:
+        error:
+          type: string
+      example:
+        error: Password and confirmation does not match
     RegisterResponse:
       title: RegisterResponse
       required:

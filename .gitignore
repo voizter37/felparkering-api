@@ -17,6 +17,7 @@
 /frontend/*.log
 /frontend/.DS_Store
 /frontend/expo-env.d.ts
+/frontend/.gitignore
 
 # === Docker ===
 **/Dockerfile

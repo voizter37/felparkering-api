@@ -1,26 +1,37 @@
-import { apiService } from '@/services/api';
+import { apiService } from '../services/api';
 import Icon from '@expo/vector-icons/Ionicons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';
-import { Dispatch, SetStateAction, useState } from 'react';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
+import { router } from 'expo-router';
+import { useState } from "react";
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { decodeJwt } from '../utils/decodeJwt';
+import { useUser } from '../context/UserContext';
 
-type RegisterProps = {
-    toggle: Dispatch<SetStateAction<boolean>>;
+type LoginProps = {
+    toggle: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export default function Register(props: RegisterProps) {
-    
+export default function Login(props: LoginProps) {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [confPassword, setConfPassword] = useState("");
+
+    const { setUser } = useUser();
 
     async function handleSubmit() {
         try {
-            const response = await apiService.register({ email, password, confPassword })
+            const response = await apiService.login({ email, password })
             const token = response.data.token;
 
             await AsyncStorage.setItem("token", token);
+
+            const decoded = decodeJwt<{ email: string; role: string }>(token);
+
+            if (decoded) {
+                setUser({ email: decoded.sub, role: decoded.role });
+            }
+
+            router.push("/home");
         } catch (error: any) {
             if (axios.isAxiosError(error)) {
                 if (error.response) {
@@ -31,7 +42,7 @@ export default function Register(props: RegisterProps) {
 
     return (
         <View style={styles.loginContainer}>
-            <Text style={styles.loginTitle}>Sign up</Text>
+            <Text style={styles.loginTitle}>Login</Text>
             <View style={styles.separator}/>
             <View style={styles.inputContainer}>
             <Icon name="mail-outline" size={20} style={styles.icon}/>
@@ -54,26 +65,16 @@ export default function Register(props: RegisterProps) {
                 onChangeText={value => setPassword(value)}
             />
             </View>
-            <View style={styles.inputContainer}>
-            <Icon name="lock-closed-outline" size={20} style={styles.icon}/>
-            <TextInput 
-                placeholder="Confirm password..." 
-                placeholderTextColor={"#bdbdbd"}
-                secureTextEntry={true}
-                value={confPassword}
-                onChangeText={value => setConfPassword(value)}
-            />
-            </View>
 
             <TouchableOpacity 
             style={styles.button}
             onPress={() => handleSubmit()}
             >
-            <Text style={styles.buttonText}>Sign up</Text>
+            <Text style={styles.buttonText}>Login</Text>
             </TouchableOpacity>
 
-            <Text>Already have an account? <Text style={styles.linkText} onPress={() => {props.toggle(false)}}>
-                Login here!
+            <Text>Don't have an account? <Text style={styles.linkText} onPress={() => {props.toggle(true)}}>
+                Sign up here!
             </Text>
             </Text>
         </View>

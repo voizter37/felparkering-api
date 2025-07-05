@@ -1,23 +1,20 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
+import { useUser } from '../context/UserContext';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function Home() {
-    const [email, setEmail] = useState<string | null>(null);
+  const userContext = useUser();
 
-    useEffect(() => {
-    const loadEmail = async () => {
-      const storedEmail = await AsyncStorage.getItem("email");
-      setEmail(storedEmail);
-    };
+  if (!userContext) {
+     return <Text>Could not load user details</Text>
+   } 
 
-    loadEmail();
-  }, []);
+  const {user} = userContext;
   
   return (
     <View style={styles.container}>
       <Text style={styles.headerTitle}>Felparkering API</Text>
-      <Text style={styles.welcomeTitle}>Welcome {email}!</Text>
+      <Text style={styles.welcomeTitle}>Welcome {user?.email}!</Text>
     </View>
   );
 }

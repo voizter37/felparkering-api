@@ -37,6 +37,10 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         loadUser();
     }, []);
 
+    if (loading) {
+        return null;
+    }
+
     return (
         <UserContext.Provider value={{ user, setUser }}>
             {children}

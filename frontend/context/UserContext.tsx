@@ -1,5 +1,7 @@
-import { createContext, ReactNode, useContext, useState } from "react";
+import { createContext, ReactNode, useContext, useEffect, useState } from "react";
 import { User } from "../types/User";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { decodeJwt } from "../utils/decodeJwt";
 
 interface UserContextType {
     user: User | null;
@@ -13,6 +15,27 @@ export const UserContext = createContext<UserContextType>({
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const loadUser = async () => {
+            try {
+                const token = await AsyncStorage.getItem("token");
+                if (token) {
+                    const decoded = decodeJwt<{ email: string; role: string }>(token);
+                    if (decoded) {
+                        setUser({ email: decoded.sub, role: decoded.role })
+                    }
+                }
+            } catch (error) {
+                console.error("Failed to load user from token", error);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        loadUser();
+    }, []);
 
     return (
         <UserContext.Provider value={{ user, setUser }}>

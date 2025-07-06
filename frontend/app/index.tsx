@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import Login from "./components/Login";
-import Register from "./components/Register";
+import Login from "../components/Login";
+import Register from "../components/Register";
 
 export default function Index() {
   

@@ -1,29 +1,37 @@
-import { apiService } from '@/services/api';
+import { apiService } from '../services/api';
 import Icon from '@expo/vector-icons/Ionicons';
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import axios from "axios";
-import { router } from 'expo-router';
-import { Dispatch, SetStateAction, useState } from "react";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+import { useState } from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { decodeJwt } from '../utils/decodeJwt';
+import { useUser } from '../context/UserContext';
 
-type LoginProps = {
-    toggle: Dispatch<SetStateAction<boolean>>;
+type RegisterProps = {
+    toggle: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export default function Login(props: LoginProps) {
+export default function Register(props: RegisterProps) {
+    
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [confPassword, setConfPassword] = useState("");
+
+    const { setUser } = useUser();
 
     async function handleSubmit() {
         try {
-            const response = await apiService.login({ email, password })
+            const response = await apiService.register({ email, password, confPassword })
             const token = response.data.token;
-            const emailRes = response.data.email;
 
             await AsyncStorage.setItem("token", token);
-            await AsyncStorage.setItem("email", emailRes);
 
-            router.push("/home");
+            const decoded = decodeJwt<{ email: string; role: string }>(token);
+                        
+            if (decoded) {
+                setUser({ email: decoded.sub, role: decoded.role });
+            }
+
         } catch (error: any) {
             if (axios.isAxiosError(error)) {
                 if (error.response) {
@@ -34,7 +42,7 @@ export default function Login(props: LoginProps) {
 
     return (
         <View style={styles.loginContainer}>
-            <Text style={styles.loginTitle}>Login</Text>
+            <Text style={styles.loginTitle}>Sign up</Text>
             <View style={styles.separator}/>
             <View style={styles.inputContainer}>
             <Icon name="mail-outline" size={20} style={styles.icon}/>
@@ -57,16 +65,26 @@ export default function Login(props: LoginProps) {
                 onChangeText={value => setPassword(value)}
             />
             </View>
+            <View style={styles.inputContainer}>
+            <Icon name="lock-closed-outline" size={20} style={styles.icon}/>
+            <TextInput 
+                placeholder="Confirm password..." 
+                placeholderTextColor={"#bdbdbd"}
+                secureTextEntry={true}
+                value={confPassword}
+                onChangeText={value => setConfPassword(value)}
+            />
+            </View>
 
             <TouchableOpacity 
             style={styles.button}
             onPress={() => handleSubmit()}
             >
-            <Text style={styles.buttonText}>Login</Text>
+            <Text style={styles.buttonText}>Sign up</Text>
             </TouchableOpacity>
 
-            <Text>Don't have an account? <Text style={styles.linkText} onPress={() => {props.toggle(true)}}>
-                Sign up here!
+            <Text>Already have an account? <Text style={styles.linkText} onPress={() => {props.toggle(false)}}>
+                Login here!
             </Text>
             </Text>
         </View>

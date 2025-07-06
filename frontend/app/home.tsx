@@ -1,16 +1,20 @@
 import { StyleSheet, Text, View } from "react-native";
 import { useUser } from '../context/UserContext';
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useRouter } from "expo-router";
+import { useEffect } from "react";
 
 export default function Home() {
-  const userContext = useUser();
+  const {user} = useUser();
+  const router = useRouter();
 
-  if (!userContext) {
-     return <Text>Could not load user details</Text>
-   } 
+  useEffect(() => {
+    if (!user) {
+      router.replace("/");
+    }
+  }, [user]);
 
-  const {user} = userContext;
   
+
   return (
     <View style={styles.container}>
       <Text style={styles.headerTitle}>Felparkering API</Text>

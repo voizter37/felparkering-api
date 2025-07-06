@@ -22,9 +22,12 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
             try {
                 const token = await AsyncStorage.getItem("token");
                 if (token) {
-                    const decoded = decodeJwt<{ email: string; role: string }>(token);
-                    if (decoded) {
+                    const decoded = decodeJwt<{ email: string; role: string; exp: number }>(token);
+                    if (decoded && decoded.exp * 1000 > Date.now()) {
                         setUser({ email: decoded.sub, role: decoded.role })
+                    } else {
+                        await AsyncStorage.removeItem("token");
+                        setUser(null);
                     }
                 }
             } catch (error) {
@@ -35,7 +38,13 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         }
 
         loadUser();
+
+        const interval = setInterval(loadUser, 5 * 60 * 1000); // Checks token every fifth minute.
+
+        return () => clearInterval(interval);
     }, []);
+
+    
 
     if (loading) {
         return null;

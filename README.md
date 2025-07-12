@@ -9,7 +9,7 @@ Ett fullstackprojekt där användare kan rapportera felparkerade bilar och parke
 - Statusuppdateringar i realtid
 
 ## Tech-stack
-- **Frontend:** Expo (React Native)
+- **Frontend:** React Native + Tailwind CSS
 - **Backend:** Docker + Spring Boot + PostgreSQL
 
 ## Komma igång

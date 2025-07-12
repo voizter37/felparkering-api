@@ -2,7 +2,7 @@ import { useApi } from '../services/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { useState } from 'react';
-import { StyleSheet, Text } from "react-native";
+import { Text, View } from "react-native";
 import { decodeJwt } from '../utils/decodeJwt';
 import { useUser } from '../context/UserContext';
 import FormTextField from './FormTextField';
@@ -69,16 +69,13 @@ export default function Register(props: RegisterProps) {
 
             <FormButton title='Sign up' onPress={handleSubmit}/>
 
-            <Text>Already have an account? <Text style={styles.linkText} onPress={() => {props.toggle(false)}}>
-                Login here!
-            </Text>
-            </Text>
+            <View className="flex items-center justify-center py-4 text-center bg-gray-50">
+                <Text className="text-sm text-gray-600">Already have an account? <Text className="mx-2 text-sm font-bold text-green hover:underline" onPress={() => {props.toggle(false)}}>
+                    Login here!
+                </Text>
+                </Text>
+            </View>
+            
         </FormWrapper>
     );
 }
-
-const styles = StyleSheet.create({
-    linkText: {
-        color: '#537c80',
-    }
-})

@@ -1,4 +1,5 @@
 import { View, Text, StyleSheet } from "react-native";
+import "../global.css"
 
 interface FormWrapperProps {
   title?: string;
@@ -8,21 +9,18 @@ interface FormWrapperProps {
 
 export default function FormWrapper({ title, backgroundColor, children }: FormWrapperProps) {
     return (
-        <View style={[{backgroundColor: backgroundColor || "#CAD2C5"}, styles.container]}>
-            <Text style={styles.title}>{title}</Text>
-            <View style={styles.separator}/>
-            {children}
+        <View className="w-full max-w-sm mx-auto overflow-hidden bg-white rounded-lg shadow-md">
+            <View className="px-6 py-4">
+                <View className="flex justify-center mx-auto">
+                    <Text className="mt-2 text-xl font-medium text-center">{title}</Text>
+                </View>
+                {children}
+            </View>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        paddingHorizontal: 75,
-        paddingTop: 25,
-        paddingBottom: 25,
-        borderRadius: 10,
-    },
     title: {
         alignSelf: 'center',
         fontSize: 28,

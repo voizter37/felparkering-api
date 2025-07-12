@@ -16,6 +16,9 @@ export default function ReportForm() {
     async function handleSubmit() {
         try {
             await api.createReport({ location, licensePlate, violation })
+            setLocation("");
+            setLicensePlate("");
+            setViolation("");
         } catch (error: any) {
             if (axios.isAxiosError(error)) {
                 if (error.response) {

@@ -15,7 +15,7 @@ export default function RootLayout() {
         headerRight: () => <TouchableOpacity><Text style={{color: '#fff', marginRight: 20, fontSize: 14}}>Log out</Text></TouchableOpacity>
       }}>
         <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="home" options={{ title: "Home" }} />
+        <Stack.Screen name="home" options={{ headerShown: false }} />
       </Stack>  
     </UserProvider>
     );

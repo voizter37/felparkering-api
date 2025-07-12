@@ -6,16 +6,23 @@ import { decodeJwt } from "../utils/decodeJwt";
 interface UserContextType {
     user: User | null;
     setUser: React.Dispatch<React.SetStateAction<User | null>>;
+    logout: () => Promise<void>;
 }
 
 export const UserContext = createContext<UserContextType>({
     user: null,
     setUser: () => {},
+    logout: async () => {},
 });
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
+
+    const logout = async () => {
+        await AsyncStorage.removeItem("token");
+        setUser(null);
+    }
 
     useEffect(() => {
         const loadUser = async () => {
@@ -51,7 +58,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     }
 
     return (
-        <UserContext.Provider value={{ user, setUser }}>
+        <UserContext.Provider value={{ user, setUser, logout }}>
             {children}
         </UserContext.Provider>
     );

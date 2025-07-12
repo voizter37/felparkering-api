@@ -1,3 +1,4 @@
+import Icon from '@expo/vector-icons/Ionicons';
 import { View, StyleSheet, Text } from "react-native";
 
 interface ReportWrapperProps {
@@ -8,23 +9,35 @@ interface ReportWrapperProps {
 }
 
 export default function ReportWrapper({ address, licensePlate, violation, status }: ReportWrapperProps) {
-
+    const getBadgeColor = () => {
+        switch (status) {
+            case "NEW":
+                return "bg-green-600";
+            case "IN_PROGRESS":
+                return "bg-yellow-500";
+            case "RESOLVED":
+                return "bg-gray-500";
+            default:
+                return "bg-gray-300";
+        }
+    };
     return (
-        <View style={styles.container}>
-            <Text>{address}</Text>
-            <Text>{licensePlate}</Text>
-            <Text>{violation}</Text>
-            <Text>{status}</Text>
+        <View className="relative bg-white rounded-xl p-4 mb-4 shadow-sm border border-gray-200">
+            <Text className="text-base font-semibold text-gray-900">{address}</Text>
+            <Text className="text-sm text-gray-700 mt-1">{violation}</Text>
+
+            <View className="flex-row items-center mt-2">
+                <Icon name="car-outline" size={16} color="#6b7280"/>
+                <Text className="ml-1 text-xs text-gray-500">{licensePlate}</Text>
+            </View>
+
+            <View className={`absolute top-2 right-2 px-2 py-0.5 rounded-full ${getBadgeColor()}`}>
+                <Text className="text-white text-xs font-bold">{status}</Text>
+            </View>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        backgroundColor: '#fff',
-        padding: 16,
-        width: '100%',
-        borderRadius: 12,
-        margin: 12,
-    }
+
 });

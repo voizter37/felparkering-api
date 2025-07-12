@@ -46,7 +46,6 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth // Definerar behörigheter till olika endpoints
             .requestMatchers("/login", "/register").permitAll()
             .requestMatchers("/admin/**").hasRole("ADMIN")
-            .requestMatchers("/reports").hasAnyRole("ADMIN", "ATTENDANT")
             .anyRequest().authenticated() // Övriga endpoints kräver autentisering
         )
         .sessionManagement(sessionManagementCustomizer -> sessionManagementCustomizer // Skapar inga session då vi använder JWT

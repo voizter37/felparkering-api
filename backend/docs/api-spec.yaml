@@ -20,6 +20,19 @@ paths:
         Returnerar en JWT-token som används för autentisering.
       operationId: Loginuser
       parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: admin@example.com
+                password:
+                  type: string
+                  example: abc123
       responses:
         '200':
           description: OK
@@ -86,6 +99,22 @@ paths:
         Registrerar en användare (CUSTOMER) med e-post och lösenord.
       operationId: Registernewuser
       parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: admin@example.com
+                password:
+                  type: string
+                  example: abc123
+                confpassword:
+                  type: string
+                  example: abc123
       responses:
         '200':
           description: OK
@@ -96,10 +125,12 @@ paths:
                 allOf:
                   - $ref: '#/components/schemas/RegisterResponse'
                   - example:
+                      token: eyJhbGciOiJIUzI1NiIsInR5cCI6...
                       message: User registered successfully
                       email: user@example.com
                       role: CUSTOMER
               example:
+                token: eyJhbGciOiJIUzI1NiIsInR5cCI6...
                 message: User registered successfully
                 email: user@example.com
                 role: CUSTOMER
@@ -154,6 +185,22 @@ paths:
         - `CUSTOMER`: Ja
       operationId: Createnewreport
       parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                location:
+                  type: string
+                  example: Södra vägen 1, Stad
+                licensePlate:
+                  type: string
+                  example: ABC123
+                category:
+                  type: string
+                  example: Blockerar utfart
       responses:
         '201':
           description: Created
@@ -165,22 +212,10 @@ paths:
                   - $ref: '#/components/schemas/ReportCreatedResponse'
                   - example:
                       message: Report created successfully
-                      id: '12'
                       createdOn: '2025-06-17T14:22:00'
-                      updatedOn: '2025-06-17T14:22:00'
-                      status: NEW
-                      attendantGroup:
-                        id: 1
-                        namn: Stockholm Södra
               example:
                 message: Report created successfully
-                id: '12'
                 createdOn: '2025-06-17T14:22:00'
-                updatedOn: '2025-06-17T14:22:00'
-                status: NEW
-                attendantGroup:
-                  id: 1
-                  namn: Stockholm Södra
         '400':
           description: Bad Request
           headers: {}
@@ -233,11 +268,11 @@ paths:
 
         Roll:
 
-        - `ADMIN`: ser alla rapporter
+        - `ADMIN`: Ser alla rapporter
             
-        - `ATTENDANT`: ser endast rapporter för sin egen vaktgrupp
+        - `ATTENDANT`: Ser endast rapporter för sin egen vaktgrupp
             
-        - `CUSTOMER`: ej tillåten (403)
+        - `CUSTOMER`: Ser endast rapporter som de har skapat
       operationId: Getallreports
       parameters: []
       responses:
@@ -336,11 +371,11 @@ paths:
 
         #### Behörighet:
 
-        - `ADMIN`: har tillgång till alla rapporter
+        - `ADMIN`: Har tillgång till alla rapporter
             
-        - `ATTENDANT`: har tillgång om rapporten tillhör samma vaktgrupp
+        - `ATTENDANT`: Har tillgång om rapporten tillhör samma vaktgrupp
             
-        - `CUSTOMER`: ej tillåtet (403)
+        - `CUSTOMER`: Har tillgång om rapporten är skapad av användaren
             
 
         #### Parameter
@@ -1036,11 +1071,14 @@ components:
     RegisterResponse:
       title: RegisterResponse
       required:
+        - token
         - message
         - email
         - role
       type: object
       properties:
+        token:
+          type: string
         message:
           type: string
         email:
@@ -1048,6 +1086,7 @@ components:
         role:
           type: string
       example:
+        token: eyJhbGciOiJIUzI1NiIsInR5cCI6...
         message: User registered successfully
         email: user@example.com
         role: CUSTOMER
@@ -1055,34 +1094,16 @@ components:
       title: ReportCreatedResponse
       required:
         - message
-        - id
         - createdOn
-        - updatedOn
-        - status
-        - attendantGroup
       type: object
       properties:
         message:
           type: string
-        id:
-          type: string
         createdOn:
           type: string
-        updatedOn:
-          type: string
-        status:
-          type: string
-        attendantGroup:
-          $ref: '#/components/schemas/AttendantGroup'
       example:
         message: Report created successfully
-        id: '12'
         createdOn: '2025-06-17T14:22:00'
-        updatedOn: '2025-06-17T14:22:00'
-        status: NEW
-        attendantGroup:
-          id: 1
-          namn: Stockholm Södra
     AttendantGroup:
       title: AttendantGroup
       required:

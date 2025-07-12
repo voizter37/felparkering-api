@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import Login from "../components/Login";
-import Register from "../components/Register";
+import LoginForm from "../components/LoginForm";
+import RegisterForm from "../components/RegisterForm";
 
 export default function Index() {
   
@@ -11,7 +11,7 @@ export default function Index() {
     <View style={styles.container}>
       <Text style={styles.headerTitle}>Felparkering API</Text>
       <View style={styles.windowContainer}>
-        {register ? <Register toggle={toggleRegister}/> : <Login toggle={toggleRegister}/>}
+        {register ? <RegisterForm toggle={toggleRegister}/> : <LoginForm toggle={toggleRegister}/>}
       </View>
     </View>
   );

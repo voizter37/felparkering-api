@@ -41,8 +41,12 @@ public class Report {
     private AttendantGroup attendantGroup;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "attendant_id")
     private User assignedTo;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User createdBy;
 
     public Long getId() {
         return id;
@@ -106,6 +110,14 @@ public class Report {
 
     public void setAttendantGroup(AttendantGroup attendantGroup) {
         this.attendantGroup = attendantGroup;
+    }
+
+    public User getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(User user) {
+        this.createdBy = user;
     }
 
     public User getAssignedTo() {

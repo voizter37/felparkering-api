@@ -3,18 +3,19 @@ import "../global.css"
 
 interface FormWrapperProps {
   title?: string;
-  backgroundColor?: string;
   children: React.ReactNode;
 }
 
-export default function FormWrapper({ title, backgroundColor, children }: FormWrapperProps) {
+export default function FormWrapper({ title, children }: FormWrapperProps) {
     return (
-        <View className="w-full max-w-sm mx-auto overflow-hidden bg-white rounded-lg shadow-md">
-            <View className="px-6 py-4">
-                <View className="flex justify-center mx-auto">
+        <View className="w-full max-w-sm mx-auto overflow-hidden bg-white rounded-lg shadow-md min-w-[360px] min-h-[400px]">
+            <View className="px-6 py-4 h-full">
+                <View className="flex justify-center items-center mb-4">
                     <Text className="mt-2 text-xl font-medium text-center">{title}</Text>
                 </View>
-                {children}
+                <View className="">
+                    {children}
+                </View>
             </View>
         </View>
     );

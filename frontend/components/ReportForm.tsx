@@ -5,6 +5,8 @@ import FormWrapper from "./FormWrapper";
 import { useApi } from "../services/api";
 import { Text } from "react-native";
 import Toast from 'react-native-toast-message';
+import FormDropdown from "./FormDropdown";
+import { parkingCategories } from "../types/parkingCategories";
 
 
 export default function ReportForm() {
@@ -21,6 +23,10 @@ export default function ReportForm() {
         try {
             setFieldErrors({});
             setFormError(null);
+
+            if (violation === "") {
+                setViolation(null);
+            }
 
             await api.createReport({ location, licensePlate, violation })
             Toast.show({
@@ -61,11 +67,12 @@ export default function ReportForm() {
                 onChangeText={value => setLicensePlate(value)}
                 error={fieldErrors.licensePlate}
             />
-            <FormTextField 
-                iconName="trail-sign-outline"
+            <FormDropdown
+                items={parkingCategories} 
                 placeholder="Violation type..."
                 value={violation}
-                onChangeText={value => setViolation(value)}
+                onChange={value => setViolation(value)}
+                iconName="trail-sign-outline"
                 error={fieldErrors.violation}
             />
 

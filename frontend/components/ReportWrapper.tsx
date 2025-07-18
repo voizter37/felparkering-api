@@ -13,7 +13,7 @@ export default function ReportWrapper({ address, licensePlate, violation, status
         switch (status) {
             case "NEW":
                 return "bg-green-600";
-            case "IN_PROGRESS":
+            case "ASSIGNED":
                 return "bg-yellow-500";
             case "RESOLVED":
                 return "bg-gray-500";

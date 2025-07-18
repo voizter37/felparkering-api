@@ -4,7 +4,7 @@ import java.time.Instant;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import jakarta.persistence.*;
-
+import se.voizter.felparkering.api.type.ParkingViolationCategory;
 import se.voizter.felparkering.api.type.Status;
 
 @Entity
@@ -22,7 +22,7 @@ public class Report {
     private String licensePlate;
 
     @Column(nullable = false)
-    private String category;
+    private ParkingViolationCategory category;
 
     @CreationTimestamp
     @Column(nullable = false)
@@ -72,11 +72,11 @@ public class Report {
         this.licensePlate = licensePlate;
     }
 
-    public String getCategory() {
+    public ParkingViolationCategory getCategory() {
         return category;
     }
 
-    public void setCategory(String category) {
+    public void setCategory(ParkingViolationCategory category) {
         this.category = category;
     }
 

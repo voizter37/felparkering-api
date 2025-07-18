@@ -6,6 +6,7 @@ import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 import ReportWrapper from "../../components/ReportWrapper";
 import { useUser } from '../../context/UserContext';
 import { useFocusEffect, useRouter } from 'expo-router';
+import { parkingCategories } from '../../types/parkingCategories';
 
 
 export default function Reports() {
@@ -49,7 +50,7 @@ export default function Reports() {
                                 <ReportWrapper 
                                 address={report.location} 
                                 licensePlate={report.licensePlate} 
-                                violation={report.category} 
+                                violation={parkingCategories.find(item => item.value === report.category)?.label ?? "Unknown violation"} 
                                 status={report.status}
                                 />
                             );

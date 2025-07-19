@@ -20,8 +20,9 @@ cd frontend
 npx expo start
 ```
 
-### Backend (Docker)
+### Backend
 ```bash
+docker desktop start
 docker compose up --build
 ```
 Bygger en container enligt [`docker-compose.yml`](https://github.com/voizter37/felparkering-api/blob/4eb3534fb29af986c2976d00e5ff87890477a640/docker-compose.yml) som: 

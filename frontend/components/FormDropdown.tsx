@@ -28,8 +28,6 @@ export default function FormDropdown({ items, placeholder, value, onChange, icon
         setInputText(selected?.label || "");
     }, [value])
 
-
-
     useEffect(() => {
         if (wasSelected.current) {
             wasSelected.current = false;
@@ -57,10 +55,19 @@ export default function FormDropdown({ items, placeholder, value, onChange, icon
             <FormTextField
                 placeholder={placeholder}
                 value={inputText}
-                onChangeText={(text) => setInputText(text)}
+                onChangeText={(text) => {
+                    setInputText(text);
+                    onChange?.(null);
+                }}
                 onFocus={() => setFocused(true)}
                 onBlur={() => {
                     setTimeout(() => setFocused(false), 150);
+                    const matched = items.find(item => item.label.toLowerCase() === inputText.trim().toLowerCase());
+                    if (matched) {
+                        onChange?.(matched.value);
+                    } else {
+                        onChange?.(null);
+  }
                 }}
                 iconName={iconName}
                 error={error}

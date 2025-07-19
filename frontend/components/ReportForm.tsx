@@ -19,13 +19,38 @@ export default function ReportForm() {
 
     const api = useApi();
 
+    function validateFields({ location, licensePlate, violation}: { 
+        location: string; licensePlate: string; violation: string | null;
+    }): Record<string, string> {
+        const errors: Record<string, string> = {};
+
+        if (!location.trim()) errors.location = "Violation is required";
+        if (!licensePlate.trim()) errors.licensePlate = "License plate is required";
+
+        const isValidViolation = parkingCategories.some(
+            (item) => item.value === violation
+            
+        );
+
+        if (!violation || !isValidViolation) {
+            errors.violation = "Select a valid violation category";
+        }
+
+        return errors;
+    }
+
     async function handleSubmit() {
         try {
             setFieldErrors({});
             setFormError(null);
+            
+            const errors = validateFields({ location, licensePlate, violation })
 
-            if (violation === "") {
-                setViolation(null);
+            
+
+            if (Object.keys(errors).length > 0) {
+                setFieldErrors(errors);
+                return;
             }
 
             await api.createReport({ location, licensePlate, violation })
@@ -38,6 +63,8 @@ export default function ReportForm() {
             setLocation("");
             setLicensePlate("");
             setViolation("");
+
+            
         } catch (error: any) {
             const errors = error.response?.data?.errors;
             if (Array.isArray(errors)) {
@@ -69,7 +96,7 @@ export default function ReportForm() {
             />
             <FormDropdown
                 items={parkingCategories} 
-                placeholder="Violation type..."
+                placeholder="Violation category..."
                 value={violation}
                 onChange={value => setViolation(value)}
                 iconName="trail-sign-outline"

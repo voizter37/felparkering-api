@@ -1,10 +1,10 @@
 import { useApi } from '../services/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';
 import { useState } from 'react';
 import { Text, View } from "react-native";
 import { decodeJwt } from '../utils/decodeJwt';
 import { useUser } from '../context/UserContext';
+import { router } from 'expo-router';
 import FormTextField from './FormTextField';
 import FormWrapper from './FormWrapper';
 import FormButton from './FormButton';
@@ -19,11 +19,17 @@ export default function Register(props: RegisterProps) {
     const [password, setPassword] = useState("");
     const [confPassword, setConfPassword] = useState("");
 
+    const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+    const [formError, setFormError] = useState<string | null>(null);
+
     const api = useApi();
     const { setUser } = useUser();
 
     async function handleSubmit() {
         try {
+            setFieldErrors({});
+            setFormError(null);
+
             const response = await api.register({ email, password, confPassword })
             const token = response.data.token;
 
@@ -34,12 +40,17 @@ export default function Register(props: RegisterProps) {
             if (decoded) {
                 setUser({ email: decoded.sub, role: decoded.role });
             }
-
+            router.push("/home");
         } catch (error: any) {
-            if (axios.isAxiosError(error)) {
-                if (error.response) {
-                    console.log(error.response.data.error);
-                }
+            const errors = error.response?.data?.errors;
+            if (Array.isArray(errors)) {
+                const newFieldErrors: Record<string, string> = {};
+                errors.forEach(e => {
+                    newFieldErrors[e.field] = e.message;
+                });
+                setFieldErrors(newFieldErrors);
+            } else {
+                setFormError("Registration failed, please check your credentials.");
             }
     }}
 
@@ -51,6 +62,7 @@ export default function Register(props: RegisterProps) {
                 inputMode="email" 
                 value={email}
                 onChangeText={value => setEmail(value)}
+                error={fieldErrors.email}
             />
             <FormTextField 
                 iconName="lock-closed-outline"
@@ -58,6 +70,7 @@ export default function Register(props: RegisterProps) {
                 secureTextEntry={true}
                 value={password}
                 onChangeText={value => setPassword(value)}
+                error={fieldErrors.password}
             />
             <FormTextField 
                 iconName="lock-closed-outline"
@@ -65,7 +78,12 @@ export default function Register(props: RegisterProps) {
                 secureTextEntry={true}
                 value={confPassword}
                 onChangeText={value => setConfPassword(value)}
+                error={fieldErrors.confPassword}
             />
+
+            {formError && (
+                <Text className="text-red-500 text-xs">{formError}</Text>
+            )}
 
             <FormButton title='Sign up' onPress={handleSubmit}/>
 

@@ -17,9 +17,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import jakarta.validation.Valid;
 import se.voizter.felparkering.api.model.Report;
+import se.voizter.felparkering.api.model.ReportRequest;
 import se.voizter.felparkering.api.model.User;
 import se.voizter.felparkering.api.repository.ReportRepository;
+import se.voizter.felparkering.api.type.ParkingViolationCategory;
 import se.voizter.felparkering.api.type.Role;
 import se.voizter.felparkering.api.type.Status;
 
@@ -53,10 +56,10 @@ public class ReportController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createReport(@RequestBody Map<String, String> body) {
-        String location = body.get("location");
-        String licensePlate = body.get("licensePlate");
-        String violation = body.get("violation");
+    public ResponseEntity<?> createReport(@Valid @RequestBody ReportRequest request) {
+        String location = request.getLocation();
+        String licensePlate = request.getLicensePlate();
+        ParkingViolationCategory violation = request.getViolation();
 
         if (location == null && licensePlate == null && violation == null) {
             return ResponseEntity.badRequest().body(Map.of("error", "Missing credentials"));
@@ -73,7 +76,7 @@ public class ReportController {
         Report report = new Report();
 
         report.setLocation(location);
-        report.setLicensePlate(licensePlate);
+        report.setLicensePlate(licensePlate.toUpperCase());
         report.setCategory(violation);
         report.setCreatedBy(user);
         report.setStatus(Status.NEW);

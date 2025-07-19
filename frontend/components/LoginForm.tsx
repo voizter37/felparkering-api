@@ -1,6 +1,5 @@
 import { useApi } from '../services/api';
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import axios from "axios";
 import { router } from 'expo-router';
 import { useState } from "react";
 import { Text, View } from "react-native";
@@ -18,11 +17,17 @@ export default function Login(props: LoginProps) {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
+    const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+    const [formError, setFormError] = useState<string | null>(null);
+
     const api = useApi();
     const { setUser } = useUser();
 
     async function handleSubmit() {
         try {
+            setFieldErrors({});
+            setFormError(null);
+
             const response = await api.login({ email, password })
             const token = response.data.token;
 
@@ -36,10 +41,15 @@ export default function Login(props: LoginProps) {
 
             router.push("/home");
         } catch (error: any) {
-            if (axios.isAxiosError(error)) {
-                if (error.response) {
-                    console.log(error.response.data.error);
-                }
+            const errors = error.response?.data?.errors;
+            if (Array.isArray(errors)) {
+                const newFieldErrors: Record<string, string> = {};
+                errors.forEach(e => {
+                    newFieldErrors[e.field] = e.message;
+                });
+                setFieldErrors(newFieldErrors);
+            } else {
+                setFormError("Login failed, please check your credentials.");
             }
     }}
 
@@ -51,6 +61,7 @@ export default function Login(props: LoginProps) {
                 inputMode="email" 
                 value={email}
                 onChangeText={value => setEmail(value)}
+                error={fieldErrors.email}
             />
             <FormTextField 
                 iconName="lock-closed-outline"
@@ -58,8 +69,13 @@ export default function Login(props: LoginProps) {
                 secureTextEntry={true}
                 value={password}
                 onChangeText={value => setPassword(value)}
+                error={fieldErrors.password}
             />
-            
+
+            {formError && (
+                <Text className="text-red-500 text-xs">{formError}</Text>
+            )}
+
             <FormButton title='Login' onPress={handleSubmit}/>
 
             <View className="flex items-center justify-center py-4 text-center bg-gray-50">

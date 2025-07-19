@@ -1,11 +1,12 @@
 import Icon from '@expo/vector-icons/Ionicons';
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useApi } from "../../services/api";
 import axios from "axios";
 import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 import ReportWrapper from "../../components/ReportWrapper";
 import { useUser } from '../../context/UserContext';
-import { useRouter } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { parkingCategories } from '../../types/parkingCategories';
 
 
 export default function Reports() {
@@ -22,21 +23,21 @@ export default function Reports() {
         }
       }, [user]);
     
-    useEffect(() => {
+    useFocusEffect(
+        useCallback(() => {
         const fetchReports = async () => {
-          try {
-            const response = await api.getAllReports();
-            setReports(response.data)
-          } catch (error: any) {
-                if (axios.isAxiosError(error)) {
-                    if (error.response) {
-                        console.log(error.response.data.error);
-                    }
+            try {
+                const response = await api.getAllReports();
+                setReports(response.data);
+            } catch (error: any) {
+                if (axios.isAxiosError(error) && error.response) {
+                    console.log(error.response.data.error);
                 }
-          }
-        }
-        fetchReports();
-      }, [reports]);
+            }};
+
+            fetchReports();
+        }, [])
+    );
 
     return (
         <ScrollView className="flex-1 bg-[#CAD2C5] px-4 pt-6">
@@ -49,7 +50,7 @@ export default function Reports() {
                                 <ReportWrapper 
                                 address={report.location} 
                                 licensePlate={report.licensePlate} 
-                                violation={report.category} 
+                                violation={parkingCategories.find(item => item.value === report.category)?.label ?? "Unknown violation"} 
                                 status={report.status}
                                 />
                             );

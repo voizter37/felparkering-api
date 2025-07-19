@@ -9,8 +9,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
+import jakarta.validation.Valid;
+import se.voizter.felparkering.api.model.LoginRequest;
+import se.voizter.felparkering.api.model.RegisterRequest;
 import se.voizter.felparkering.api.model.User;
 import se.voizter.felparkering.api.repository.UserRepository;
 import se.voizter.felparkering.api.security.JwtProvider;
@@ -26,9 +28,9 @@ public class AuthController {
     private UserRepository userRepository;
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody Map<String, String> body) {
-        String email = body.get("email");
-        String password = body.get("password");
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
+        String email = request.getEmail();
+        String password = request.getPassword();
 
         if (email == null || password == null) {
             return ResponseEntity.badRequest().body(Map.of("error", "Missing credentials"));
@@ -59,10 +61,10 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody Map<String, String> body) {
-        String email = body.get("email");
-        String password = body.get("password");
-        String confPassword = body.get("confPassword");
+    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request) {
+        String email = request.getEmail();
+        String password = request.getPassword();
+        String confPassword = request.getConfPassword();
 
         if (email == null || password == null) {
             return ResponseEntity.badRequest().body(Map.of("error", "Missing credentials"));

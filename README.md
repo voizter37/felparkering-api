@@ -43,3 +43,10 @@ cd backend
 ### API-specifikation
 
 Fullständig specifikation enligt [`backend/docs/api-spec.yaml`](backend/docs/api-spec.yaml)
+
+### Addresslista
+Adresserna kommer ifrån [osmnames.org](https://osmnames.org/download/) där jag har plockat ut data för endast Sverige genom att köra:
+```bash
+zcat planet-latest.tsv.gz | awk -F '\t' -v OFS='\t' 'NR == 1 || $16 == "se"' > sweden.tsv
+```
+Jag har sedan arbetat med denna data i en [Python-notebook](addresses.ipynb) där jag har rensat datan på orelevanta kolumner, hämtat saknade adresser med hjälp av longitud och latitud samt delat in adresserna till de topp 10 mest befolkade städerna som nu också blir de vaktgrupper som kommer att användas i projektet.

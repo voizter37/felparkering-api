@@ -47,7 +47,8 @@ export default function Reports() {
                     {reports.map((report) => {
                         if (report.status != "RESOLVED") {
                             return (
-                                <ReportWrapper 
+                                <ReportWrapper
+                                key={report.id}
                                 address={report.location} 
                                 licensePlate={report.licensePlate} 
                                 violation={parkingCategories.find(item => item.value === report.category)?.label ?? "Unknown violation"} 

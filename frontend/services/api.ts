@@ -48,5 +48,6 @@ export function useApi() {
         createAttendantGroup: (data: any) => api.post('/attendants', data),
         getAllAttendantGroups: () => api.get('/attendants'),
         deleteAttendantGroup: (id: any) => api.delete(`/attendants/${id}`),
+        searchAddress: (query: string) => api.get(`/addresses/search`, { params: { query } }),
     };
 }

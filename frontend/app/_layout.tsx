@@ -6,13 +6,7 @@ export default function RootLayout() {
   return (
     <UserProvider>
       <Stack screenOptions={{
-        headerStyle: {
-          backgroundColor: '#52796F'
-        },
-        headerTitleAlign: 'center',
-        headerTintColor: '#fff',
-        headerLeft: () => <Text style={{color: '#fff', marginLeft: 20, fontSize: 18}}>Felparkering API</Text>,
-        headerRight: () => <TouchableOpacity><Text style={{color: '#fff', marginRight: 20, fontSize: 14}}>Log out</Text></TouchableOpacity>
+        headerShown: false,
       }}>
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="home" options={{ headerShown: false }} />

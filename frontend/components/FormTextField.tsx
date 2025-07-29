@@ -37,13 +37,4 @@ const styles = StyleSheet.create({
         marginRight: 5,
         color: "#979797",
     },
-    inputContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        borderColor:  '#d8d8d8',
-        borderWidth: 2,
-        borderRadius: 4,
-        padding: 8,
-        marginVertical: 6,
-    },
 })

@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -96,5 +97,20 @@ public class AuthController {
             "email", email,
             "role", user.getRole()
         ));
+    }
+    
+    @GetMapping("/admin/auth")
+    public ResponseEntity<?> authAdmin() {
+        return ResponseEntity.ok("Authorized as admin");
+    }
+
+    @GetMapping("/attendant/auth")
+    public ResponseEntity<?> authAttendant() {
+        return ResponseEntity.ok("Authorized as attendant");
+    }
+
+    @GetMapping("/customer/auth")
+    public ResponseEntity<?> authCustomer() {
+        return ResponseEntity.ok("Authorized as customer");
     }
 }

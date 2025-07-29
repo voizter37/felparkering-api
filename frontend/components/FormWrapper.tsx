@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text } from "react-native";
 import "../global.css"
 
 interface FormWrapperProps {
@@ -20,15 +20,3 @@ export default function FormWrapper({ title, children }: FormWrapperProps) {
         </View>
     );
 }
-
-const styles = StyleSheet.create({
-    title: {
-        alignSelf: 'center',
-        fontSize: 28,
-    },
-    separator: {
-        marginVertical: 12,
-        borderBottomColor: '#737373',
-        borderBottomWidth: StyleSheet.hairlineWidth,
-    },
-})

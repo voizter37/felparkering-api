@@ -1,5 +1,5 @@
 import Icon from '@expo/vector-icons/Ionicons';
-import { View, StyleSheet, Text } from "react-native";
+import { View, Text } from "react-native";
 
 interface ReportWrapperProps {
     address: string;
@@ -37,7 +37,3 @@ export default function ReportWrapper({ address, licensePlate, violation, status
         </View>
     );
 }
-
-const styles = StyleSheet.create({
-
-});

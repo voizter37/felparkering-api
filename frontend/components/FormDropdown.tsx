@@ -3,6 +3,7 @@ import { FlatList, Text, TouchableOpacity, View } from "react-native";
 import FormTextField from "./FormTextField";
 
 interface DropdownItem {
+    index: string;
     label: string;
     value: string;
 }
@@ -14,19 +15,31 @@ interface FormDropdownProps {
     onChange?: (value: string) => void;
     iconName: any;
     error?: string;
+    allowCustomInput?: boolean;
 }
 
-export default function FormDropdown({ items, placeholder, value, onChange, iconName, error }: FormDropdownProps) {
+export default function FormDropdown({ items, placeholder, value, onChange, iconName, error, allowCustomInput }: FormDropdownProps) {
     const [dropdown, toggleDropdown] = useState(false);
     const [inputText, setInputText] = useState("");
     const [focused, setFocused] = useState(false);
     const [filteredItems, setFilteredItems] = useState<DropdownItem[]>([]);
+
     const wasSelected = useRef(false);
+    const didMount = useRef(false);
 
     useEffect(() => {
-        const selected = items.find((item) => item.value === value);
-        setInputText(selected?.label || "");
-    }, [value])
+        if (!didMount.current) {
+            didMount.current = true;
+            return;
+        }
+        
+        if (!allowCustomInput) {
+            const selected = items.find((item) => item.value === value);
+            setInputText(selected?.label || "");
+        } else if (value !== inputText) {
+            setInputText(value || "");
+        }
+    }, [value, items])
 
     useEffect(() => {
         if (wasSelected.current) {
@@ -57,17 +70,22 @@ export default function FormDropdown({ items, placeholder, value, onChange, icon
                 value={inputText}
                 onChangeText={(text) => {
                     setInputText(text);
-                    onChange?.(null);
+                    if (allowCustomInput) {
+                        onChange?.(text);
+                    }
                 }}
                 onFocus={() => setFocused(true)}
                 onBlur={() => {
                     setTimeout(() => setFocused(false), 150);
-                    const matched = items.find(item => item.label.toLowerCase() === inputText.trim().toLowerCase());
+
+                    const matched = items.find((item) => item.label.toLowerCase() === inputText.trim().toLowerCase());
+
                     if (matched) {
                         onChange?.(matched.value);
                     } else {
                         onChange?.(null);
-  }
+                    }
+                    
                 }}
                 iconName={iconName}
                 error={error}
@@ -77,7 +95,7 @@ export default function FormDropdown({ items, placeholder, value, onChange, icon
                 <View className="mx-2 border border-gray-300 rounded-b bg-white shadow-md max-h-60">
                     <FlatList 
                         data={filteredItems} 
-                        keyExtractor={(item) => item.value}
+                        keyExtractor={(item) => item.index}
                         keyboardShouldPersistTaps="handled"
                         renderItem={({ item }) => 
                             <TouchableOpacity

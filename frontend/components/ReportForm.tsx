@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import FormButton from "./FormButton";
 import FormTextField from "./FormTextField";
 import FormWrapper from "./FormWrapper";
@@ -11,6 +11,8 @@ import { parkingCategories } from "../types/parkingCategories";
 
 export default function ReportForm() {
     const [location, setLocation] = useState("");
+    const [selectedLocation, setSelectedLocation] = useState("");
+    const [locationSuggestions, setLocationSuggestions] = useState([]);
     const [licensePlate, setLicensePlate] = useState("");
     const [violation, setViolation] = useState("");
 
@@ -19,21 +21,44 @@ export default function ReportForm() {
 
     const api = useApi();
 
+    useEffect(() => {
+        const delay = setTimeout(() => {
+            if (location?.length >= 2) {
+                console.log("Should request data", location);
+                api.searchAddress(location).then((response) => {
+                    const suggestions = response.data.map((item, index) => ({
+                        index: index,
+                        label: `${item.street} ${item.houseNumber ?? ""}, ${item.city}`,
+                        value: `${item.street} ${item.houseNumber ?? ""}, ${item.city}`
+                    }))
+                    setLocationSuggestions(suggestions);
+                });
+            } else {
+                console.log("Skipping search, input too short or empty", location);
+                setLocationSuggestions([]);
+            }
+        }, 300);
+
+        return () => clearTimeout(delay);
+    }, [location]);
+
     function validateFields({ location, licensePlate, violation}: { 
         location: string; licensePlate: string; violation: string | null;
     }): Record<string, string> {
         const errors: Record<string, string> = {};
 
-        if (!location.trim()) errors.location = "Violation is required";
+        if (!location?.trim()) errors.location = "Address is required";
         if (!licensePlate.trim()) errors.licensePlate = "License plate is required";
 
         const isValidViolation = parkingCategories.some(
             (item) => item.value === violation
-            
         );
-
         if (!violation || !isValidViolation) {
-            errors.violation = "Select a valid violation category";
+            errors.violation = "Select a valid violation category rom the list";
+        }
+
+        if (!selectedLocation) {
+            errors.location = "Select a valid address from the list";
         }
 
         return errors;
@@ -60,9 +85,10 @@ export default function ReportForm() {
                 text2: 'Your report has been saved.',
             });
 
-            setLocation("");
+            setLocation(null);
+            setSelectedLocation(null);
             setLicensePlate("");
-            setViolation("");
+            setViolation(null);
 
             
         } catch (error: any) {
@@ -80,12 +106,17 @@ export default function ReportForm() {
 
     return (
         <FormWrapper title="Report">
-            <FormTextField 
+            <FormDropdown 
                 iconName="location-outline"
+                items={locationSuggestions}
                 placeholder="Address..."
                 value={location}
-                onChangeText={value => setLocation(value)}
+                onChange={value => {
+                    setLocation(value);
+                    setSelectedLocation(value);
+                }}
                 error={fieldErrors.location}
+                allowCustomInput={true}
             />
             <FormTextField 
                 iconName="car-outline"
@@ -95,12 +126,13 @@ export default function ReportForm() {
                 error={fieldErrors.licensePlate}
             />
             <FormDropdown
+                iconName="trail-sign-outline"
                 items={parkingCategories} 
                 placeholder="Violation category..."
                 value={violation}
                 onChange={value => setViolation(value)}
-                iconName="trail-sign-outline"
                 error={fieldErrors.violation}
+                allowCustomInput={false}
             />
 
             {formError && (

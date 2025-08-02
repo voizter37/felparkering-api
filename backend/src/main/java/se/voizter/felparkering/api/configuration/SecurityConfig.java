@@ -47,7 +47,7 @@ public class SecurityConfig {
             .requestMatchers("/login", "/register").permitAll()
             .requestMatchers("/admin/**").hasRole("ADMIN")
             .requestMatchers("/attendant/**").hasRole("ATTENDANT")
-            .requestMatchers("/customer/**").hasRole("CUSTOMER")
+            .requestMatchers("/home/**").hasRole("CUSTOMER")
             .anyRequest().authenticated() // Övriga endpoints kräver autentisering
         )
         .sessionManagement(sessionManagementCustomizer -> sessionManagementCustomizer // Skapar inga session då vi använder JWT

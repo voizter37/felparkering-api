@@ -40,7 +40,7 @@ export default function Reports() {
     );
 
     return (
-        <ScrollView className="flex-1 bg-[#CAD2C5] px-4 pt-6">
+        <ScrollView className="flex-1 bg-park-background px-4 pt-6">
             <View className="w-full max-w-md mx-auto">
                 <Text className="text-2xl font-bold text-center mb-4">Reports</Text>
                 <View className="w-[90%] max-w-md mx-auto mb-4">
@@ -60,7 +60,7 @@ export default function Reports() {
                 </View>
 
             <TouchableOpacity
-                className="flex-row items-center justify-between px-4 py-2 rounded-lg bg-[#CAD2C5]"
+                className="flex-row items-center justify-between px-4 py-2 rounded-lg bg-park-background"
                 onPress={() => setShowArchived(!showArchived)}
             >
                 <Text className="text-base font-semibold">Archived reports</Text>

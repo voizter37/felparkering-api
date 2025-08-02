@@ -12,6 +12,7 @@ import { parkingCategories } from "../types/parkingCategories";
 export default function ReportForm() {
     const [location, setLocation] = useState("");
     const [selectedLocation, setSelectedLocation] = useState("");
+    const [selectedAddressObj, setSelectedAddressObj] = useState(null);
     const [locationSuggestions, setLocationSuggestions] = useState([]);
     const [licensePlate, setLicensePlate] = useState("");
     const [violation, setViolation] = useState("");
@@ -24,17 +25,19 @@ export default function ReportForm() {
     useEffect(() => {
         const delay = setTimeout(() => {
             if (location?.length >= 2) {
-                console.log("Should request data", location);
                 api.searchAddress(location).then((response) => {
-                    const suggestions = response.data.map((item, index) => ({
-                        index: index,
+                    console.log(response.data);
+                    const suggestions = response.data.map((item) => ({
+                        index: item.id,
                         label: `${item.street} ${item.houseNumber ?? ""}, ${item.city}`,
-                        value: `${item.street} ${item.houseNumber ?? ""}, ${item.city}`
+                        value: `${item.street} ${item.houseNumber ?? ""}, ${item.city}`,
+                        street: item.street,
+                        houseNumber: item.houseNumber,
+                        city: item.city
                     }))
                     setLocationSuggestions(suggestions);
                 });
             } else {
-                console.log("Skipping search, input too short or empty", location);
                 setLocationSuggestions([]);
             }
         }, 300);
@@ -71,14 +74,22 @@ export default function ReportForm() {
             
             const errors = validateFields({ location, licensePlate, violation })
 
-            
-
             if (Object.keys(errors).length > 0) {
                 setFieldErrors(errors);
                 return;
             }
 
-            await api.createReport({ location, licensePlate, violation })
+            console.log(selectedAddressObj);
+
+            await api.createReport({ 
+                id: selectedAddressObj.index,
+                street: selectedAddressObj.street,
+                houseNumber: selectedAddressObj.houseNumber,
+                city: selectedAddressObj.city,
+                licensePlate, 
+                violation
+            })
+
             Toast.show({
                 type: 'success',
                 text1: 'Report was created!',
@@ -113,7 +124,9 @@ export default function ReportForm() {
                 value={location}
                 onChange={value => {
                     setLocation(value);
+                    const match = locationSuggestions.find(s => s.value === value);
                     setSelectedLocation(value);
+                    setSelectedAddressObj(match);
                 }}
                 error={fieldErrors.location}
                 allowCustomInput={true}

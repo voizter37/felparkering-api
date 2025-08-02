@@ -1,6 +1,6 @@
 import Icon from '@expo/vector-icons/Ionicons';
 import { useState } from 'react';
-import { TextInput, TextInputProps, View, StyleSheet, Text } from "react-native";
+import { TextInput, TextInputProps, View, Text } from "react-native";
 
 interface FormTextFieldProps extends TextInputProps {
   iconName?: any;
@@ -16,7 +16,7 @@ export default function FormTextField({ iconName, error, ...props }: FormTextFie
                     focused ? "border-blue-500" : error ? "border-red-500" : "border-gray-300"
                 }`}
             >
-                {iconName && <Icon name={iconName} size={20} style={styles.icon}/>}
+                {iconName && <Icon name={iconName} size={20} className="mr-1 text-park-icon"/>}
                 <TextInput
                     placeholderTextColor={"#bdbdbd"}
                     className="flex-1 text-gray-800 bg-transparent focus:outline-none"
@@ -31,10 +31,3 @@ export default function FormTextField({ iconName, error, ...props }: FormTextFie
         </View>
     );
 }
-
-const styles = StyleSheet.create({
-    icon: {
-        marginRight: 5,
-        color: "#979797",
-    },
-})

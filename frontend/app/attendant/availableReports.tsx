@@ -1,18 +1,26 @@
 import { ScrollView, View, Text } from "react-native";
 import AttendantReportWrapper from "../../components/AttendantReportWrapper";
 import AttendantLargeReportWrapper from "../../components/AttendantLargeReportWrapper";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Report } from "../../types/Report";
-import { useFocusEffect } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import { useApi } from "../../services/api";
 import axios from "axios";
 import { parkingCategories } from "../../types/parkingCategories";
+import { useUser } from "../../context/UserContext";
 
 export default function AvailableReports() {
     const [activeReport, setActiveReport] = useState<Report | null>(null);
     const [newReports, setNewReports] = useState([]);
 
     const api = useApi();
+    const {user} = useUser();
+
+    useEffect(() => {
+        if (!user) {
+              router.replace("/");
+        }
+    }, [user]);
 
     useFocusEffect(
         useCallback(() => {
@@ -20,7 +28,6 @@ export default function AvailableReports() {
             try {
                 const response = await api.getAllReports();
                 setNewReports(response.data);
-                console.log(response.data);
             } catch (error: any) {
                 if (axios.isAxiosError(error) && error.response) {
                     console.log(error.response.data.error);

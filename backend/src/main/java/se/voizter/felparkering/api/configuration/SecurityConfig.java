@@ -45,9 +45,9 @@ public class SecurityConfig {
             .cors(Customizer.withDefaults())
             .authorizeHttpRequests(auth -> auth // Definerar behörigheter till olika endpoints
             .requestMatchers("/login", "/register").permitAll()
-            .requestMatchers("/admin/**").hasRole("ADMIN")
-            .requestMatchers("/attendant/**").hasRole("ATTENDANT")
-            .requestMatchers("/home/**").hasRole("CUSTOMER")
+            .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
+            .requestMatchers("/attendant/**").hasAuthority("ROLE_ATTENDANT")
+            .requestMatchers("/home/**").hasAuthority("ROLE_CUSTOMER")
             .anyRequest().authenticated() // Övriga endpoints kräver autentisering
         )
         .sessionManagement(sessionManagementCustomizer -> sessionManagementCustomizer // Skapar inga session då vi använder JWT

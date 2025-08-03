@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,12 +18,13 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import jakarta.validation.Valid;
+import se.voizter.felparkering.api.dto.ReportDto;
 import se.voizter.felparkering.api.model.Address;
 import se.voizter.felparkering.api.model.Report;
-import se.voizter.felparkering.api.model.ReportRequest;
 import se.voizter.felparkering.api.model.User;
 import se.voizter.felparkering.api.repository.AddressRepository;
 import se.voizter.felparkering.api.repository.ReportRepository;
+import se.voizter.felparkering.api.repository.UserRepository;
 import se.voizter.felparkering.api.type.ParkingViolationCategory;
 import se.voizter.felparkering.api.type.Role;
 import se.voizter.felparkering.api.type.Status;
@@ -34,16 +36,19 @@ public class ReportController {
 
     private final ReportRepository repository;
     private final AddressRepository addressRepository;
+    private final UserRepository userRepository;
 
-    ReportController(ReportRepository repository, AddressRepository addressRepository) {
+    ReportController(ReportRepository repository, AddressRepository addressRepository, UserRepository userRepository) {
         this.repository = repository;
         this.addressRepository = addressRepository;
+        this.userRepository = userRepository;
     }
 
     @GetMapping
     public ResponseEntity<?> all() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User) auth.getPrincipal();
+        String email = (String) auth.getPrincipal();
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User not found"));
         Role role = user.getRole();
 
         switch (role) {
@@ -60,7 +65,7 @@ public class ReportController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createReport(@Valid @RequestBody ReportRequest request) {
+    public ResponseEntity<?> createReport(@Valid @RequestBody ReportDto request) {
         String street = request.getStreet();
         String houseNumber = request.getHouseNumber();
         String city = request.getCity();
@@ -72,7 +77,8 @@ public class ReportController {
         }
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User) auth.getPrincipal();
+        String email = (String) auth.getPrincipal();
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User not found"));
         Role role = user.getRole();
 
         if (role == Role.ATTENDANT) {

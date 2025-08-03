@@ -34,7 +34,7 @@ public class AdminController {
 
     @PostMapping("/users")
     User createAttendant(@RequestBody User attendant) {
-        // TODO: Inför en check att Role == ATTENDANT
+        // TODO: Inför en check att Role == ADMIN
         return userRepository.save(attendant);
     }
 

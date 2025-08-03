@@ -1,4 +1,6 @@
 export interface Report {
+    longitude: number;
+    latitude: number;
     createdOn: string;
     category: string;
     location: string;

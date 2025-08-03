@@ -1,11 +1,11 @@
-package se.voizter.felparkering.api.model;
+package se.voizter.felparkering.api.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import se.voizter.felparkering.api.type.ParkingViolationCategory;
 
-public class ReportRequest {
+public class ReportDto {
     @NotNull(message = "Id is required")
     private Long id;
 

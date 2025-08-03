@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { Text, View } from "react-native";
 import LoginForm from "../components/LoginForm";
 import RegisterForm from "../components/RegisterForm";
 
@@ -8,28 +8,11 @@ export default function Index() {
   const [register, toggleRegister] = useState(false);
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.headerTitle}>Felparkering API</Text>
-      <View style={styles.windowContainer}>
+    <View className="flex-1 items-center bg-park-default">
+      <Text className="text-4xl text-white mt-8">Felparkering API</Text>
+      <View className="flex-1 justify-center">
         {register ? <RegisterForm toggle={toggleRegister}/> : <LoginForm toggle={toggleRegister}/>}
       </View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#52796F",
-    alignItems: "center",
-  },
-  headerTitle: {
-    fontSize: 48,
-    color: '#fff',
-    marginTop: 32,
-  },
-  windowContainer: {
-    flex: 1,
-    justifyContent: "center",
-  }
-});

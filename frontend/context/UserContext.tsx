@@ -2,6 +2,7 @@ import { createContext, ReactNode, useContext, useEffect, useState } from "react
 import { User } from "../types/User";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { decodeJwt } from "../utils/decodeJwt";
+import { Text } from "react-native";
 
 interface UserContextType {
     user: User | null;
@@ -9,10 +10,11 @@ interface UserContextType {
     logout: () => Promise<void>;
 }
 
-export const UserContext = createContext<UserContextType>({
+export const UserContext = createContext<UserContextType & { loading: boolean }>({
     user: null,
     setUser: () => {},
     logout: async () => {},
+    loading: true,
 });
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
@@ -51,14 +53,12 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         return () => clearInterval(interval);
     }, []);
 
-    
-
     if (loading) {
-        return null;
+        return <Text>Loading...</Text>;
     }
 
     return (
-        <UserContext.Provider value={{ user, setUser, logout }}>
+        <UserContext.Provider value={{ user, setUser, logout, loading }}>
             {children}
         </UserContext.Provider>
     );

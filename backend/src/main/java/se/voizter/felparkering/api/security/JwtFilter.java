@@ -54,14 +54,16 @@ public class JwtFilter extends OncePerRequestFilter{
             String token = bearerToken.substring(7); // Plockar ut token utan "Bearer "-prefixet.
             if (jwtProvider.validateToken(token)) {
                 String email = jwtProvider.getEmail(token);
+                String role = jwtProvider.getRole(token);
                 Optional<User> maybeUser = userRepository.findByEmail(email);
                 if (maybeUser.isPresent()) {
                     User user = maybeUser.get();
                     UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-                        user, 
+                        user.getEmail(), 
                         null, 
-                        List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()))
+                        List.of(new SimpleGrantedAuthority("ROLE_" + role))
                     );
+                    System.out.println("Setting auth for: " + email + " with role: ROLE_" + role);
                     SecurityContextHolder.getContext().setAuthentication(auth);
                 }
             }

@@ -1,5 +1,5 @@
 import Icon from '@expo/vector-icons/Ionicons';
-import { View, StyleSheet, Text } from "react-native";
+import { View, Text } from "react-native";
 
 interface ReportWrapperProps {
     address: string;
@@ -22,12 +22,12 @@ export default function ReportWrapper({ address, licensePlate, violation, status
         }
     };
     return (
-        <View className="relative bg-white rounded-xl p-4 mb-4 shadow-sm border border-gray-200">
+        <View className="relative bg-white rounded-lg p-4 m-4 mb-4 shadow-sm border shadow-gray-200 border-gray-200">
             <Text className="text-base font-semibold text-gray-900">{address}</Text>
             <Text className="text-sm text-gray-700 mt-1">{violation}</Text>
 
             <View className="flex-row items-center mt-2">
-                <Icon name="car-outline" size={16} color="#6b7280"/>
+                <Icon name="car-outline" size={16} className="text-park-icon"/>
                 <Text className="ml-1 text-xs text-gray-500">{licensePlate}</Text>
             </View>
 
@@ -37,7 +37,3 @@ export default function ReportWrapper({ address, licensePlate, violation, status
         </View>
     );
 }
-
-const styles = StyleSheet.create({
-
-});

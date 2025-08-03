@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
-import se.voizter.felparkering.api.model.LoginRequest;
-import se.voizter.felparkering.api.model.RegisterRequest;
+import se.voizter.felparkering.api.dto.LoginDto;
+import se.voizter.felparkering.api.dto.RegisterDto;
 import se.voizter.felparkering.api.model.User;
 import se.voizter.felparkering.api.repository.UserRepository;
 import se.voizter.felparkering.api.security.JwtProvider;
@@ -28,7 +28,7 @@ public class AuthController {
     private UserRepository userRepository;
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
+    public ResponseEntity<?> login(@Valid @RequestBody LoginDto request) {
         String email = request.getEmail();
         String password = request.getPassword();
 
@@ -61,7 +61,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request) {
+    public ResponseEntity<?> register(@Valid @RequestBody RegisterDto request) {
         String email = request.getEmail();
         String password = request.getPassword();
         String confPassword = request.getConfPassword();

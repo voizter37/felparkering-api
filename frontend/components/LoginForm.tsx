@@ -37,9 +37,25 @@ export default function Login(props: LoginProps) {
 
             if (decoded) {
                 setUser({ email: decoded.sub, role: decoded.role });
+
+                switch (decoded.role) {
+                    case "CUSTOMER":
+                        router.replace("/home");
+                        break;
+                    case "ATTENDANT":
+                        router.replace("/attendant");
+                        break;
+                    case "ADMIN":
+                        router.replace("/admin");
+                        break;
+                    default:
+                        setFormError("Login failed, please check your credentials.");
+                        break;
+                }
+
             }
 
-            router.push("/home");
+            
         } catch (error: any) {
             const errors = error.response?.data?.errors;
             if (Array.isArray(errors)) {

@@ -1,22 +1,19 @@
 import { Stack } from "expo-router";
-import {Text, TouchableOpacity } from "react-native";
 import { UserProvider } from "../context/UserContext";
+import AuthRedirector from "../components/AuthRedirector";
 
 export default function RootLayout() {
-  return (
-    <UserProvider>
-      <Stack screenOptions={{
-        headerStyle: {
-          backgroundColor: '#52796F'
-        },
-        headerTitleAlign: 'center',
-        headerTintColor: '#fff',
-        headerLeft: () => <Text style={{color: '#fff', marginLeft: 20, fontSize: 18}}>Felparkering API</Text>,
-        headerRight: () => <TouchableOpacity><Text style={{color: '#fff', marginRight: 20, fontSize: 14}}>Log out</Text></TouchableOpacity>
-      }}>
-        <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="home" options={{ headerShown: false }} />
-      </Stack>  
-    </UserProvider>
-    );
+  	return (
+		<UserProvider>
+			<AuthRedirector />
+			<Stack screenOptions={{
+				headerShown: false,
+			}}>
+				<Stack.Screen name="index" options={{ headerShown: false }} />
+				<Stack.Screen name="home" options={{ headerShown: false }} />
+				<Stack.Screen name="attendant" options={{ headerShown: false }} />
+				<Stack.Screen name="admin" options={{ headerShown: false }} />
+			</Stack>  
+		</UserProvider>
+  	);
 }

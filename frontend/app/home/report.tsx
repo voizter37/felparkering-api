@@ -1,7 +1,7 @@
 import { useRouter } from "expo-router";
 import { useUser } from "../../context/UserContext";
 import { useEffect } from "react";
-import { View, StyleSheet } from "react-native";
+import { View } from "react-native";
 import ReportForm from "../../components/ReportForm";
 
 
@@ -16,17 +16,8 @@ export default function Report() {
       }, [user]);
 
       return (
-        <View style={styles.container}>
+        <View className="flex-1 items-center justify-center bg-park-background">
               <ReportForm /> 
         </View>
       );
 }
-
-const styles = StyleSheet.create({
-    container: {
-    flex: 1,
-    backgroundColor: "#CAD2C5",
-    alignItems: "center",
-    justifyContent: 'center',
-  },
-})

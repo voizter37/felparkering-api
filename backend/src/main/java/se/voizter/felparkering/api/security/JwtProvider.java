@@ -88,4 +88,19 @@ public class JwtProvider {
             .getPayload()
             .getSubject();
     }
+
+    /**
+     * Hämtar användarens roll från en JWT-token.
+     * 
+     * @param token en giltig JWT-token.
+     * @return användarens roll som finns tokenens "claim"-fält under "role". 
+     */
+    public String getRole(String token) {
+        return Jwts.parser()
+            .verifyWith(Keys.hmacShaKeyFor(secretKey.getBytes()))
+            .build()
+            .parseSignedClaims(token)
+            .getPayload()
+            .get("role", String.class);
+    }
 }

@@ -6,8 +6,15 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        mydarkgreen: "#52796F",
-        mygreen: "#537c80",
+        park: {
+          lighter: "#CAD2C5",
+          light: "#84A98C",
+          default: "#52796F",
+          dark: "#354F52",
+          darker: "#2F3E46",
+          background: "#F7FAFC",
+          icon: "#979797",
+        }
       },
     },
   },

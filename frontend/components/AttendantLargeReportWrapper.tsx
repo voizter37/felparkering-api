@@ -1,23 +1,31 @@
 import { View, Text, TouchableOpacity } from "react-native";
 import WebMap from "./WebMap";
+import { cities } from "../types/cities";
 
 
 
 interface AttendantLargeReportWrapperProps {
     address: string;
+    hq: string;
     licensePlate: string;
     violation: string;
     timeStamp: string;
     coords: [number, number];
 }
 
-export default function AttendantLargeReportWrapper({ address, licensePlate, violation, timeStamp, coords }: AttendantLargeReportWrapperProps) {
+export default function AttendantLargeReportWrapper({ address, hq, licensePlate, violation, timeStamp, coords }: AttendantLargeReportWrapperProps) {
+
+    function getCityCoordinates(cityName: string) {
+        const match = cities.find(c => c.city.toLowerCase() === cityName.toLowerCase());
+        return match?.position || null;
+    }
+    const hqPosition = getCityCoordinates(hq);
 
     return (
         <View className="relative rounded-lg p-4 m-4 mb-4 shadow-sm border shadow-gray-200 border-gray-200 bg-white">
             <Text className="text-2xl font-semibold pb-4">{address}</Text>
             <View>
-                <WebMap latitude={coords[0]} longitude={coords[1]}/>
+                <WebMap adressPosition={coords} hqPosition={[hqPosition.latitude, hqPosition.longitude]}/>
             </View>
             <View className="my-4">
                 <Text className="text-xl">{violation}</Text>

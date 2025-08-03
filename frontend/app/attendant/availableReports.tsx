@@ -58,6 +58,7 @@ export default function AvailableReports() {
             <View className="w-3/4">
                 {activeReport ? (<AttendantLargeReportWrapper 
                     address={activeReport.location}
+                    hq={activeReport.attendantGroup.name}
                     licensePlate={activeReport.licensePlate}
                     violation={parkingCategories.find(item => item.value === activeReport.category)?.label ?? "Unknown violation"}
                     timeStamp={activeReport.createdOn}

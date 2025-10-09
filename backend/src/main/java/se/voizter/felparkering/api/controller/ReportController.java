@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import jakarta.validation.Valid;
-import se.voizter.felparkering.api.dto.ReportDto;
+import se.voizter.felparkering.api.dto.ReportRequest;
 import se.voizter.felparkering.api.model.Address;
 import se.voizter.felparkering.api.model.AttendantGroup;
 import se.voizter.felparkering.api.model.Report;
@@ -30,7 +30,6 @@ import se.voizter.felparkering.api.repository.UserRepository;
 import se.voizter.felparkering.api.type.ParkingViolationCategory;
 import se.voizter.felparkering.api.type.Role;
 import se.voizter.felparkering.api.type.Status;
-import se.voizter.felparkering.service.ReportService;
 
 @RestController
 @RequestMapping("/reports")
@@ -69,7 +68,7 @@ public class ReportController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createReport(@Valid @RequestBody ReportDto request) {
+    public ResponseEntity<?> createReport(@Valid @RequestBody ReportRequest request) {
         String street = request.getStreet();
         String houseNumber = request.getHouseNumber();
         String city = request.getCity();

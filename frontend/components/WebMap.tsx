@@ -2,6 +2,7 @@ import L from 'leaflet';
 import { MapContainer, Marker, TileLayer } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import MapMover from './MapMover';
+import Route from './Route';
 
 const addresIconHtml = `
   <div style="width: 40px; height: 40px;">
@@ -53,12 +54,22 @@ interface WebMapProps {
 }
 
 export default function WebMap({ adressPosition, hqPosition }: WebMapProps) {
+
     return (
         <MapContainer center={adressPosition} zoom={10} style={{ height: '50vh', width: '100%' }}>
-			<MapMover position={adressPosition} />
-            <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-            <Marker position={adressPosition} icon={addresIcon}/>
-			<Marker position={hqPosition} icon={hqIcon}/>
+          <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+          <Marker position={adressPosition} icon={addresIcon}/>
+          <Marker position={hqPosition} icon={hqIcon}/>
+          <Route
+            start={hqPosition}
+            end={adressPosition}
+            weight={5}
+            onReady={(fc) => {
+              const props = fc.features?.[0]?.properties;
+              console.log("summary:", props?.summary);
+            }}
+          />
+          <MapMover position={adressPosition} />
         </MapContainer>
     );
 }

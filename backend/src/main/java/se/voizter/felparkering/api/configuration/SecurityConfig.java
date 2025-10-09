@@ -1,17 +1,21 @@
 package se.voizter.felparkering.api.configuration;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.List;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
-import se.voizter.felparkering.api.repository.UserRepository;
+import org.springframework.security.web.context.SecurityContextHolderFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import jakarta.servlet.http.HttpServletResponse;
 import se.voizter.felparkering.api.security.JwtFilter;
 import se.voizter.felparkering.api.security.JwtProvider;
 
@@ -23,11 +27,11 @@ import se.voizter.felparkering.api.security.JwtProvider;
 @EnableWebSecurity
 public class SecurityConfig {
     
-    @Autowired
-    private JwtProvider jwtProvider;
+    private final JwtProvider jwtProvider;
 
-    @Autowired
-    private UserRepository userRepository;
+    public SecurityConfig(JwtProvider jwtProvider) {
+        this.jwtProvider = jwtProvider;
+    }
 
     /**
      * Konfigurerar de filter som säkerhetskedjan ska innehålla.
@@ -42,19 +46,44 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable) // Inaktiverar CSRF då vi använder JWT.
-            .cors(Customizer.withDefaults())
-            .authorizeHttpRequests(auth -> auth // Definerar behörigheter till olika endpoints
+        .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+        .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .authorizeHttpRequests(auth -> auth // Definerar behörigheter till olika endpoints
+            .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
             .requestMatchers("/login", "/register").permitAll()
-            .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
-            .requestMatchers("/attendant/**").hasAuthority("ROLE_ATTENDANT")
-            .requestMatchers("/home/**").hasAuthority("ROLE_CUSTOMER")
+            .requestMatchers("/admin/**").hasRole("ADMIN")
+            .requestMatchers("/attendant/**").hasRole("ATTENDANT")
+            .requestMatchers("/home/**").hasRole("CUSTOMER")
+            .requestMatchers(HttpMethod.POST, "/addresses/route").hasRole("ATTENDANT")
             .anyRequest().authenticated() // Övriga endpoints kräver autentisering
         )
-        .sessionManagement(sessionManagementCustomizer -> sessionManagementCustomizer // Skapar inga session då vi använder JWT
-            .sessionCreationPolicy(SessionCreationPolicy.STATELESS))  
-
-        .addFilterBefore(new JwtFilter(jwtProvider, userRepository), UsernamePasswordAuthenticationFilter.class); // Lägger till ett JWT-filter före standardfiltret för användarnamn och lösenord.
-    
+        .addFilterAfter(new JwtFilter(jwtProvider), SecurityContextHolderFilter.class)
+        .exceptionHandling(e -> e
+            .authenticationEntryPoint((req, res, ex) -> {
+                var a = SecurityContextHolder.getContext().getAuthentication();
+                System.out.println("AUTH ENTRY (401) " + req.getMethod() + " " + req.getRequestURI()
+                    + " ex=" + ex.getClass().getSimpleName() + " auth=" + a);
+                res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            })
+        );
         return http.build();
     }
+
+    @Bean
+    CorsConfigurationSource corsConfigurationSource() {
+            CorsConfiguration config = new CorsConfiguration();
+            config.setAllowedOriginPatterns(List.of(
+                "http://100.80.95.79:8081",
+                "http://localhost:8081",
+                "http://100.80.95.79:8080"
+            ));
+            config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+            config.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With"));
+            config.setExposedHeaders(List.of("Authorization"));
+            config.setAllowCredentials(true);
+            UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+	        source.registerCorsConfiguration("/**", config);
+            return source;
+    }
+
 }

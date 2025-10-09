@@ -19,6 +19,7 @@ export default function AttendantLargeReportWrapper({ address, hq, licensePlate,
         const match = cities.find(c => c.city.toLowerCase() === cityName.toLowerCase());
         return match?.position || null;
     }
+    
     const hqPosition = getCityCoordinates(hq);
 
     return (

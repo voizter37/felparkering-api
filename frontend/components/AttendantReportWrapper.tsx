@@ -21,8 +21,7 @@ export default function AttendantReportWrapper({ address, licensePlate, violatio
     const timestampText = selected ? "text-gray-100" : "text-gray-500";
 
     return (
-        <TouchableOpacity onPress={onPress}>
-            <View className={`relative ${bgColor} rounded-lg p-4 m-4 mb-4 shadow-sm border shadow-gray-200 ${borderColor}`}>
+        <TouchableOpacity className={`relative ${bgColor} rounded-lg p-4 mx-4 mt-4 shadow-sm border shadow-gray-200 ${borderColor}`} onPress={onPress}>
                 <Text className={`text-sm font-semibold ${titleText}`}>{address}</Text>
                 <Text className={`text-sm ${subText} mt-1`}>{violation}</Text>
 
@@ -34,8 +33,6 @@ export default function AttendantReportWrapper({ address, licensePlate, violatio
                 <View className="flex-row justify-end">
                     <Text className={`text-xs font-semibold italic ${timestampText} mt-2`}>Created: {timeStamp}</Text>
                 </View>
-                
-            </View>
         </TouchableOpacity>
     );
 }

@@ -49,27 +49,27 @@ const hqIcon = L.divIcon({
 });
 
 interface WebMapProps {
-	adressPosition: [number, number];
-	hqPosition: [number, number];
+    adressPosition: [number, number];
+    hqPosition: [number, number];
+    onRouteReady: React.Dispatch<React.SetStateAction<{distance: number; duration: number}>>
 }
 
-export default function WebMap({ adressPosition, hqPosition }: WebMapProps) {
-
+export default function WebMap({ adressPosition, hqPosition, onRouteReady }: WebMapProps) {
     return (
         <MapContainer center={adressPosition} zoom={10} style={{ height: '50vh', width: '100%' }}>
-          <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-          <Marker position={adressPosition} icon={addresIcon}/>
-          <Marker position={hqPosition} icon={hqIcon}/>
-          <Route
-            start={hqPosition}
-            end={adressPosition}
-            weight={5}
-            onReady={(fc) => {
-              const props = fc.features?.[0]?.properties;
-              console.log("summary:", props?.summary);
-            }}
-          />
-          <MapMover position={adressPosition} />
+            <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+            <Marker position={adressPosition} icon={addresIcon} />
+            <Marker position={hqPosition} icon={hqIcon} />
+            <Route
+                start={hqPosition}
+                end={adressPosition}
+                weight={5}
+                onReady={(fc) => {
+                    const props = fc.features?.[0]?.properties;
+                    onRouteReady?.(props?.summary);
+                }}
+            />
+            <MapMover position={adressPosition} />
         </MapContainer>
     );
 }

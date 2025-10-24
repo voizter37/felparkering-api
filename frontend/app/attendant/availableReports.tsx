@@ -41,6 +41,10 @@ export default function AvailableReports() {
     return (
         <View className="flex-row h-full bg-park-background">
             <ScrollView className="w-1/4">
+                <View className="m-4 items-center">
+                    <Text className="text-3xl">Active reports</Text>  
+                </View>
+                
                 {newReports.map((report) => {
                     return (
                         <AttendantReportWrapper
@@ -55,6 +59,7 @@ export default function AvailableReports() {
                     );
                 })}
             </ScrollView>
+            <View className="border my-4 border-slate-200"></View>
             <View className="w-3/4">
                 {activeReport ? (<AttendantLargeReportWrapper 
                     address={activeReport.location}

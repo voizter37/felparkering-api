@@ -5,7 +5,7 @@ import { useUser } from "../context/UserContext";
 export function useApi() {
     const { setUser } = useUser();
 
-    const API_URL = 'http://100.80.95.79:8080/';
+    const API_URL = 'http://100.80.25.4:8080/';
     const api = axios.create({
         baseURL: API_URL,
         headers: {
@@ -28,10 +28,10 @@ export function useApi() {
     api.interceptors.response.use(
         response => response,
         async error => {
-            //if (error.response?.status === 401 || error.response?.status === 403) {
-            //    await AsyncStorage.removeItem("token");
-            //    setUser(null);
-            //}
+            if (error.response?.status === 401 || error.response?.status === 403) {
+                await AsyncStorage.removeItem("token");
+                setUser(null);
+            }
             return Promise.reject(error);
         }
     );

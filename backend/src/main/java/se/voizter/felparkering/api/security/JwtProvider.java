@@ -70,7 +70,6 @@ public class JwtProvider {
                 .verifyWith(Keys.hmacShaKeyFor(secretKey.getBytes()))
                 .build()
                 .parseSignedClaims(token);
-            System.out.println("TOKEN IS VALID");
             return true;
         } catch (ExpiredJwtException e) {
             System.out.println("JWT INVALID: Expired -> " + e.getMessage());

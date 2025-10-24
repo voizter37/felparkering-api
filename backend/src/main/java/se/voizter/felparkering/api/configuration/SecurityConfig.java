@@ -74,13 +74,13 @@ public class SecurityConfig {
             CorsConfiguration config = new CorsConfiguration();
             config.setAllowedOriginPatterns(List.of(
                 "http://100.80.95.79:8081",
-                "http://localhost:8081",
-                "http://100.80.95.79:8080"
+                "http://localhost:8081"
             ));
-            config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-            config.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With"));
+            config.setAllowedMethods(List.of("*"));
+            config.setAllowedHeaders(List.of("*"));
             config.setExposedHeaders(List.of("Authorization"));
             config.setAllowCredentials(true);
+
             UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 	        source.registerCorsConfiguration("/**", config);
             return source;

@@ -5,12 +5,13 @@ import { useUser } from "../context/UserContext";
 export function useApi() {
     const { setUser } = useUser();
 
-    const API_URL = 'http://localhost:8080/';
+    const API_URL = 'http://100.80.25.4:8080/';
     const api = axios.create({
         baseURL: API_URL,
         headers: {
             'Content-Type': 'application/json'
-        }
+        },
+        withCredentials: true
     });
 
     api.interceptors.request.use(
@@ -49,5 +50,6 @@ export function useApi() {
         getAllAttendantGroups: () => api.get('/attendants'),
         deleteAttendantGroup: (id: any) => api.delete(`/attendants/${id}`),
         searchAddress: (query: string) => api.get(`/addresses/search`, { params: { query } }),
+        getRoute: (payload: { start: [number, number]; end: [number, number] }, cfg?: any) => api.post('/addresses/route', payload, cfg),
     };
 }

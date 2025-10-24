@@ -1,19 +1,15 @@
 package se.voizter.felparkering.api.dto;
-
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-public class RegisterDto {
+public class LoginRequest {
     @NotBlank(message = "Email address is required")
     @Email(message = "Invalid email address")
     private String email;
 
     @Size(min = 8, message = "Password must be at least 8 characters long")
     private String password;
-
-    @Size(min = 8, message = "Confirm password must be at least 8 characters long")
-    private String confPassword;
 
     public String getEmail() {
         return email;
@@ -29,13 +25,5 @@ public class RegisterDto {
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public String getConfPassword() {
-        return confPassword;
-    }
-    
-    public void setConfPassword(String confPassword) {
-        this.confPassword = confPassword;
     }
 }

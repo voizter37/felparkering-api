@@ -18,17 +18,18 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import jakarta.validation.Valid;
-import se.voizter.felparkering.api.dto.ReportDto;
+import se.voizter.felparkering.api.dto.ReportRequest;
 import se.voizter.felparkering.api.model.Address;
+import se.voizter.felparkering.api.model.AttendantGroup;
 import se.voizter.felparkering.api.model.Report;
 import se.voizter.felparkering.api.model.User;
 import se.voizter.felparkering.api.repository.AddressRepository;
+import se.voizter.felparkering.api.repository.AttendantGroupRepository;
 import se.voizter.felparkering.api.repository.ReportRepository;
 import se.voizter.felparkering.api.repository.UserRepository;
 import se.voizter.felparkering.api.type.ParkingViolationCategory;
 import se.voizter.felparkering.api.type.Role;
 import se.voizter.felparkering.api.type.Status;
-import se.voizter.felparkering.service.ReportService;
 
 @RestController
 @RequestMapping("/reports")
@@ -37,11 +38,13 @@ public class ReportController {
     private final ReportRepository repository;
     private final AddressRepository addressRepository;
     private final UserRepository userRepository;
+    private final AttendantGroupRepository attendantGroupRepository;
 
-    ReportController(ReportRepository repository, AddressRepository addressRepository, UserRepository userRepository) {
+    ReportController(ReportRepository repository, AddressRepository addressRepository, UserRepository userRepository, AttendantGroupRepository attendantGroupRepository) {
         this.repository = repository;
         this.addressRepository = addressRepository;
         this.userRepository = userRepository;
+        this.attendantGroupRepository = attendantGroupRepository;
     }
 
     @GetMapping
@@ -65,7 +68,7 @@ public class ReportController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createReport(@Valid @RequestBody ReportDto request) {
+    public ResponseEntity<?> createReport(@Valid @RequestBody ReportRequest request) {
         String street = request.getStreet();
         String houseNumber = request.getHouseNumber();
         String city = request.getCity();
@@ -102,6 +105,16 @@ public class ReportController {
         report.setCategory(violation);
         report.setCreatedBy(user);
         report.setStatus(Status.NEW);
+
+        Optional<AttendantGroup> optionalAttendantGroup = attendantGroupRepository.findByName(city);
+
+        if (optionalAttendantGroup.isEmpty()) {
+            throw new RuntimeException("Attendant group not found in database");
+        }
+
+        AttendantGroup attendantGroup = optionalAttendantGroup.get();
+
+        report.setAttendantGroup(attendantGroup);
 
         repository.save(report);
 

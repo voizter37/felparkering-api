@@ -1,5 +1,6 @@
 package se.voizter.felparkering.api.security;
 
+import java.time.Instant;
 import java.util.Date;
 
 import javax.crypto.SecretKey;
@@ -7,6 +8,7 @@ import javax.crypto.SecretKey;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -45,12 +47,12 @@ public class JwtProvider {
      */
     public String generateToken(String email, Role role) {
         SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes()); // Genererar en nyckel utifrån den hemliga nyckeln baserat på HMAC-algoritmen.
-
+        Instant now = Instant.now();
         return Jwts.builder()
             .subject(email)
             .claim("role", role.toString())
-            .expiration(new Date(System.currentTimeMillis() + expiration))
-            .issuedAt(new Date())
+            .expiration(Date.from(now.plusMillis(expiration)))
+            .issuedAt(Date.from(now))
             .signWith(key, Jwts.SIG.HS256)
             .compact();
         
@@ -69,9 +71,12 @@ public class JwtProvider {
                 .build()
                 .parseSignedClaims(token);
             return true;
+        } catch (ExpiredJwtException e) {
+            System.out.println("JWT INVALID: Expired -> " + e.getMessage());
         } catch (JwtException e) {
-            return false;
+            System.out.println("JWT INVALID: " + e.getClass().getSimpleName() + " - " + e.getMessage());
         }
+        return false;
     }
 
     /**

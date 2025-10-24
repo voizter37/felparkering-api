@@ -2,26 +2,26 @@ package se.voizter.felparkering.api.security;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import se.voizter.felparkering.api.model.User;
-import se.voizter.felparkering.api.repository.UserRepository;
 
 /**
  * JWT-filter som körs en gång per inkommande request för att kontrollera JWT-token.
  */
 public class JwtFilter extends OncePerRequestFilter{
     private final JwtProvider jwtProvider;
-    private final UserRepository userRepository;
 
     /**
      * Skapar en ny instans av {@code JwtFilter}.
@@ -29,9 +29,8 @@ public class JwtFilter extends OncePerRequestFilter{
      * @param jwtProvider komponent för att validera och tolka JWT-token.
      * @param userRepository repository för att slå upp användare via e-post.
      */
-    public JwtFilter(JwtProvider jwtProvider, UserRepository userRepository) {
+    public JwtFilter(JwtProvider jwtProvider) {
         this.jwtProvider = jwtProvider;
-        this.userRepository = userRepository;
     }
     
     /**
@@ -47,27 +46,31 @@ public class JwtFilter extends OncePerRequestFilter{
      * @throws IOException om något IO-fel uppstår.
      */
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
-        String bearerToken = request.getHeader("Authorization");
+    protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain)
+        throws ServletException, IOException {
 
-        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-            String token = bearerToken.substring(7); // Plockar ut token utan "Bearer "-prefixet.
+        String bearer = req.getHeader("Authorization");
+        if (bearer != null && bearer.startsWith("Bearer ")) {
+            String token = bearer.substring(7);
+
             if (jwtProvider.validateToken(token)) {
                 String email = jwtProvider.getEmail(token);
-                String role = jwtProvider.getRole(token);
-                Optional<User> maybeUser = userRepository.findByEmail(email);
-                if (maybeUser.isPresent()) {
-                    User user = maybeUser.get();
-                    UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-                        user.getEmail(), 
-                        null, 
-                        List.of(new SimpleGrantedAuthority("ROLE_" + role))
-                    );
-                    System.out.println("Setting auth for: " + email + " with role: ROLE_" + role);
-                    SecurityContextHolder.getContext().setAuthentication(auth);
-                }
+                String role  = Optional.ofNullable(jwtProvider.getRole(token))
+                    .orElse("")
+                    .trim()
+                    .toUpperCase(Locale.ROOT);
+                String granted = role.startsWith("ROLE_") ? role : "ROLE_" + role;
+
+                var auth = new UsernamePasswordAuthenticationToken(
+                    email, null, List.of(new SimpleGrantedAuthority(granted)));
+
+                SecurityContextHolderStrategy strategy = SecurityContextHolder.getContextHolderStrategy();
+                SecurityContext context = strategy.createEmptyContext();
+                context.setAuthentication(auth);
+                strategy.setContext(context);
             }
         }
-        chain.doFilter(request, response); // Fortsätter vidare i filterekdjan.
+
+        chain.doFilter(req, res);
     }
 }

@@ -1,4 +1,5 @@
 export interface Report {
+    attendantGroup: any;
     longitude: number;
     latitude: number;
     createdOn: string;

@@ -1,4 +1,4 @@
-package se.voizter.felparkering.service;
+package se.voizter.felparkering.api.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 

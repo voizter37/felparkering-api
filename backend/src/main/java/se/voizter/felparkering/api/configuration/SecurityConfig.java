@@ -73,7 +73,7 @@ public class SecurityConfig {
     CorsConfigurationSource corsConfigurationSource() {
             CorsConfiguration config = new CorsConfiguration();
             config.setAllowedOriginPatterns(List.of(
-                "http://100.80.95.79:8081",
+                "https://*.netlify.app",
                 "http://localhost:8081"
             ));
             config.setAllowedMethods(List.of("*"));

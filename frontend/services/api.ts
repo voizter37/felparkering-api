@@ -5,7 +5,7 @@ import { useUser } from "../context/UserContext";
 export function useApi() {
     const { setUser } = useUser();
 
-    const API_URL = 'http://100.80.25.4:8080/';
+    const API_URL = process.env.EXPO_PUBLIC_API_BASE ?? "http://localhost:8080";
     const api = axios.create({
         baseURL: API_URL,
         headers: {

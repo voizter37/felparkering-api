@@ -2,6 +2,7 @@ package se.voizter.felparkering.api.configuration;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -55,7 +56,7 @@ public class SecurityConfig {
         .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(auth -> auth // Definerar behörigheter till olika endpoints
             .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-            .requestMatchers("/login", "/register").permitAll()
+            .requestMatchers("/health", "/login", "/register").permitAll()
             .requestMatchers("/admin/**").hasRole("ADMIN")
             .requestMatchers("/attendant/**").hasRole("ATTENDANT")
             .requestMatchers("/home/**").hasRole("CUSTOMER")
@@ -74,12 +75,22 @@ public class SecurityConfig {
         return http.build();
     }
 
+    @Bean
+    public FilterRegistrationBean<CorsFilter> corsFilterRegistration(
+        @Qualifier("corsConfigurationSource") CorsConfigurationSource source) {
+            FilterRegistrationBean<CorsFilter> bean = new FilterRegistrationBean<>(new CorsFilter(source));
+            bean.setOrder(Ordered.HIGHEST_PRECEDENCE);
+        return bean;
+    }
+
+    @Bean
     @Primary
     CorsConfigurationSource corsConfigurationSource() {
             CorsConfiguration config = new CorsConfiguration();
             config.setAllowedOriginPatterns(List.of(
+                "https://felparkering-api.netlify.app",
                 "https://*.netlify.app",
-                "http://localhost:8081"
+                "http://localhost:*"
             ));
             config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
             config.setAllowedHeaders(List.of("*"));
@@ -89,13 +100,6 @@ public class SecurityConfig {
             UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 	        source.registerCorsConfiguration("/**", config);
             return source;
-    }
-
-    @Bean
-    public FilterRegistrationBean<CorsFilter> corsFilterRegistration(CorsConfigurationSource source) {
-        FilterRegistrationBean<CorsFilter> bean = new FilterRegistrationBean<>(new CorsFilter(source));
-        bean.setOrder(Ordered.HIGHEST_PRECEDENCE);
-        return bean;
     }
 
 }

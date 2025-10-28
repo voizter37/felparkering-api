@@ -3,7 +3,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from 'expo-router';
 import { useState } from "react";
 import { Text, View } from "react-native";
-import { decodeJwt } from '../utils/decodeJwt';
+import { decodeJwt, sanitizeToken } from '../utils/decodeJwt';
 import { useUser } from '../context/UserContext';
 import FormTextField from './FormTextField';
 import FormWrapper from './FormWrapper';
@@ -29,33 +29,52 @@ export default function Login(props: LoginProps) {
             setFormError(null);
 
             const response = await api.login({ email, password })
-            const token = response.data.token;
+            let token: string | null | undefined = response?.data?.token;
+
+            token = sanitizeToken(token);
+
+            if (!token) {
+                console.warn("No JWT found in response", response?.data, response?.headers);
+                setFormError("Login failed (no token).");
+                return;
+            }
 
             await AsyncStorage.setItem("token", token);
 
-            const decoded = decodeJwt<{ email: string; role: string }>(token);
-
-            if (decoded) {
-                setUser({ email: decoded.sub, role: decoded.role });
-
-                switch (decoded.role) {
-                    case "CUSTOMER":
-                        router.replace("/home");
-                        break;
-                    case "ATTENDANT":
-                        router.replace("/attendant");
-                        break;
-                    case "ADMIN":
-                        router.replace("/admin");
-                        break;
-                    default:
-                        setFormError("Login failed, please check your credentials.");
-                        break;
-                }
-
+            const payload = decodeJwt<any>(token);
+            if (!payload) {
+                await AsyncStorage.removeItem("token");
+                setFormError("Login failed (invalid token).");
+                return;
             }
 
-            
+            const userEmail = payload.email ?? payload.sub ?? null;
+            const userRole = payload.role ?? null;
+
+            if (!userEmail) {
+                await AsyncStorage.removeItem("token");
+                setFormError("Login failed (no identity in token).");
+                return;
+            }
+
+            setUser({ email: userEmail, role: userRole });
+
+
+            switch (userRole) {
+                case "CUSTOMER":
+                    router.replace("/home");
+                    break;
+                case "ATTENDANT":
+                    router.replace("/attendant");
+                    break;
+                case "ADMIN":
+                    router.replace("/admin");
+                    break;
+                default:
+                    setFormError("Login failed, please check your credentials.");
+                    break;
+            }
+
         } catch (error: any) {
             const errors = error.response?.data?.errors;
             if (Array.isArray(errors)) {
@@ -65,6 +84,7 @@ export default function Login(props: LoginProps) {
                 });
                 setFieldErrors(newFieldErrors);
             } else {
+                console.error("Login error", error?.response ?? error);
                 setFormError("Login failed, please check your credentials.");
             }
     }}

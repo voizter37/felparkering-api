@@ -1,7 +1,7 @@
-import { createContext, ReactNode, useContext, useEffect, useState } from "react";
+import { createContext, ReactNode, useContext, useEffect, useRef, useState } from "react";
 import { User } from "../types/User";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { decodeJwt } from "../utils/decodeJwt";
+import { decodeJwt, sanitizeToken } from "../utils/decodeJwt";
 import { Text } from "react-native";
 
 interface UserContextType {
@@ -20,37 +20,64 @@ export const UserContext = createContext<UserContextType & { loading: boolean }>
 export const UserProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
+    const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
     const logout = async () => {
-        await AsyncStorage.removeItem("token");
-        setUser(null);
+        try {
+            await AsyncStorage.removeItem("token");
+        } finally {
+            setUser(null);
+        } 
+    };
+
+    const loadUser = async () => {
+        try {
+            const stored = await AsyncStorage.getItem("token");
+            const token = sanitizeToken(stored);
+            if (!token) {
+                setUser(null);
+                return;
+            }
+
+            const payload = decodeJwt<any>(token);
+
+            const now = Math.floor(Date.now() / 1000);
+            if (typeof payload?.exp === "number" && payload.exp <= now) {
+                await AsyncStorage.removeItem("token");
+                setUser(null);
+                return;
+            }
+
+            const email: string | undefined = payload?.email ?? payload.sub ?? undefined;
+            const role: string | undefined = payload?.role ?? undefined;
+
+            if (!email) {
+                setUser(null);
+                return;
+            }
+
+            setUser({ email, role: role});
+
+        } catch (error) {
+            console.warn("loadUser failed:", error);
+            try { 
+                await AsyncStorage.removeItem("token"); 
+            } catch {}
+            setUser(null);
+        } finally {
+            setLoading(false);
+        }
     }
 
     useEffect(() => {
-        const loadUser = async () => {
-            try {
-                const token = await AsyncStorage.getItem("token");
-                if (token) {
-                    const decoded = decodeJwt<{ email: string; role: string; exp: number }>(token);
-                    if (decoded && decoded.exp * 1000 > Date.now()) {
-                        setUser({ email: decoded.sub, role: decoded.role })
-                    } else {
-                        await AsyncStorage.removeItem("token");
-                        setUser(null);
-                    }
-                }
-            } catch (error) {
-                console.error("Failed to load user from token", error);
-            } finally {
-                setLoading(false);
-            }
-        }
-
         loadUser();
 
-        const interval = setInterval(loadUser, 5 * 60 * 1000); // Checks token every fifth minute.
-
-        return () => clearInterval(interval);
+        intervalRef.current = setInterval(loadUser, 5 * 60 * 1000)
+        return () => {
+            if (intervalRef.current) {
+                clearInterval(intervalRef.current);
+            }
+        }
     }, []);
 
     if (loading) {

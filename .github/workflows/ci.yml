@@ -23,7 +23,8 @@ jobs:
                 uses: gradle/actions/setup-gradle@017a9effdb900e5b5b2fddfb590a105619dca3c3
 
             -   name: Build and test with Gradle
-                run: ./backend/gradlew --no-daemon clean test
+                run: ./gradlew --no-daemon clean test
+                working-directory: backend
 
             -   name: Upload test results
                 if: always()

@@ -8,6 +8,10 @@ public enum Message {
     USER_EXISTS("User already exists"),
     INVALID_CREDENTIALS("Invalid credentials"),
     USER_NOT_FOUND("User not found"),
+    REPORT_NOT_FOUND("Report not found"),
+    ADDRESS_NOT_FOUND("Address not found"),
+    ATTENDANT_GROUP_NOT_FOUND("Attendant group not found"),
+    REPORT_NO_PERMISSION("You do not have permission to get all reports"),
     ;
 
     private final String prettyName;

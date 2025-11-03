@@ -11,7 +11,6 @@ import se.voizter.felparkering.api.dto.UserDetailDto;
 import se.voizter.felparkering.api.enums.Message;
 import se.voizter.felparkering.api.enums.Role;
 import se.voizter.felparkering.api.exception.exceptions.InvalidCredentialsException;
-import se.voizter.felparkering.api.exception.exceptions.MissingCredentialsException;
 import se.voizter.felparkering.api.exception.exceptions.NotFoundException;
 import se.voizter.felparkering.api.exception.exceptions.PasswordMismatchException;
 import se.voizter.felparkering.api.exception.exceptions.UserConflictException;
@@ -32,10 +31,8 @@ public class AuthService {
 
     @Transactional
     public UserDetailDto login(LoginRequest request) {
-        String email = request.getEmail();
-        String password = request.getPassword();
-
-        checkMissingCredentials(new String[] {email, password});
+        String email = request.email();
+        String password = request.password();
 
         Optional<User> maybeUser = userRepository.findByEmail(email);
         if (maybeUser.isEmpty()) {
@@ -53,17 +50,15 @@ public class AuthService {
 
     @Transactional
     public UserDetailDto register(RegisterRequest request) {
-        String email = request.getEmail();
-        String password = request.getPassword();
-
-        checkMissingCredentials(new String[] {email, password});
+        String email = request.email();
+        String password = request.password();
 
         Optional<User> maybeUser = userRepository.findByEmail(email);
         if (maybeUser.isPresent()) {
             throw new UserConflictException(Message.USER_EXISTS.toString());
         }
 
-        if (!password.equals(request.getConfPassword())) {
+        if (!password.equals(request.confPassword())) {
             throw new PasswordMismatchException(Message.PASSWORD_MISMATCH.toString());
         }
 
@@ -84,13 +79,4 @@ public class AuthService {
     private String getToken(User user) {
         return jwtProvider.generateToken(user.getEmail(), user.getRole());
     }
-
-    private void checkMissingCredentials(String[] credentials) {
-        for (int i = 0; i < credentials.length; i++) {
-            if (credentials[i] == null) {
-                throw new MissingCredentialsException(Message.MISSING_CREDENTIALS.toString());
-            }
-        }
-    }
-
 }

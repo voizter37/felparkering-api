@@ -1,7 +1,6 @@
 package se.voizter.felparkering.api.service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -29,9 +28,7 @@ public class AdminService {
     @Transactional
     public List<UserAdminDetailDto> getAllUsers() {
         List<User> allUsers = userRepository.findAll();
-        return allUsers.stream()
-            .map(this::toUserDetailDto)
-            .collect(Collectors.toList());
+        return allUsers.stream().map(this::toUserDetailDto).toList();
     }
 
     @Transactional
@@ -48,9 +45,7 @@ public class AdminService {
     @Transactional
     public List<AttendantGroupDetailDto> getAllAttendantGroups() {
         List<AttendantGroup> allGroups = groupRepository.findAll();
-        return allGroups.stream()
-            .map(this::toGroupDetailDto)
-            .collect(Collectors.toList());
+        return allGroups.stream().map(this::toGroupDetailDto).toList();
     }
 
     private UserAdminDetailDto toUserDetailDto(User user) {

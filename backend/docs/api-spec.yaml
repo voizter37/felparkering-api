@@ -465,7 +465,7 @@ paths:
             
         - `ATTENDANT`: kan ändra status om rapporten tillhör deras vaktgrupp
             
-        - `CUSTOMER`: ej tillåtet (403)
+        - `CUSTOMER`: kan ändra status på sina egna ärenden om de är aktiva till `CANCELLED`
             
 
         #### Parameter
@@ -481,6 +481,16 @@ paths:
           schema:
             type: string
       responses:
+        '200':
+          description: Updated
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportUpdatedResponse'
+                example:
+                  message: Report updated successfully
+                  createdOn: '2025-06-17T14:22:00'
         '403':
           description: Forbidden
           headers: {}
@@ -493,38 +503,6 @@ paths:
                       error: You do not have permission to update a report
               example:
                 error: You do not have permission to update a report
-        '200':
-          description: Ok
-          headers: {}
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: '#/components/schemas/Report'
-                  - example:
-                      id: 12
-                      location: Södra vägen 1, Stad
-                      licensePlate: ABC123
-                      category: Blockerar utfart
-                      createdOn: '2025-06-17T14:22:00'
-                      updatedOn: '2025-06-17T14:22:00'
-                      status: NEW
-                      attendantGroup:
-                        id: 1
-                        namn: Stockholm Södra
-                      assignedTo: 7
-              example:
-                id: 12
-                location: Södra vägen 1, Stad
-                licensePlate: ABC123
-                category: Blockerar utfart
-                createdOn: '2025-06-17T14:22:00'
-                updatedOn: '2025-06-17T14:22:00'
-                status: NEW
-                attendantGroup:
-                  id: 1
-                  namn: Stockholm Södra
-                assignedTo: 7
       deprecated: false
       security:
         - bearer: []
@@ -923,6 +901,20 @@ components:
           type: string
       example:
         message: Report created successfully
+        createdOn: '2025-06-17T14:22:00'
+    ReportUpdatedResponse:
+      title: ReportUpdatedResponse
+      required:
+        - message
+        - createdOn
+      type: object
+      properties:
+        message:
+          type: string
+        createdOn:
+          type: string
+      example:
+        message: Report updated successfully
         createdOn: '2025-06-17T14:22:00'
     AttendantGroup:
       title: AttendantGroup

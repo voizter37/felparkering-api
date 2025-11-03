@@ -30,6 +30,6 @@ public class AddressController {
 
     @PostMapping("/route")
     public Map<?,?> getRoute(@RequestBody RouteRequest request) {
-        return addressService.getRoute(request.getStart(), request.getEnd());
+        return addressService.getRoute(request.start(), request.end());
     }
 }

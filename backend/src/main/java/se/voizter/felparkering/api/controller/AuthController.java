@@ -1,10 +1,7 @@
 package se.voizter.felparkering.api.controller;
 
 import java.util.Map;
-import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,88 +10,28 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 import se.voizter.felparkering.api.dto.LoginRequest;
 import se.voizter.felparkering.api.dto.RegisterRequest;
-import se.voizter.felparkering.api.model.User;
-import se.voizter.felparkering.api.repository.UserRepository;
-import se.voizter.felparkering.api.security.JwtProvider;
-import se.voizter.felparkering.api.type.Role;
+import se.voizter.felparkering.api.dto.UserDetailDto;
+import se.voizter.felparkering.api.enums.Message;
+import se.voizter.felparkering.api.service.AuthService;
 
 @RestController
 public class AuthController {
     
-    @Autowired
-    private JwtProvider jwtProvider;
+    private final AuthService authService;
 
-    @Autowired
-    private UserRepository userRepository;
+    public AuthController(AuthService authService) {
+        this.authService = authService;
+    }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
-        String email = request.getEmail();
-        String password = request.getPassword();
-
-        if (email == null || password == null) {
-            return ResponseEntity.badRequest().body(Map.of("error", "Missing credentials"));
-        }
-
-        Optional<User> optionalUser = userRepository.findByEmail(email);
-        if (optionalUser.isEmpty()) {
-            return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(Map.of("error", "User not found"));
-        }
-
-        User user = optionalUser.get();
-
-        if (!user.getPassword().equals(password)) {
-            return ResponseEntity
-                .status(HttpStatus.UNAUTHORIZED)
-                .body(Map.of("error", "Invalid credentials"));
-        }
-
-        String token = jwtProvider.generateToken(email, user.getRole());
-
-        return ResponseEntity.ok(Map.of(
-            "token", token,
-            "email", email,
-            "role", user.getRole()
-        ));
+        UserDetailDto user = authService.login(request);
+        return ResponseEntity.ok(Map.of("user", user, "message", Message.LOGIN));
     }
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request) {
-        String email = request.getEmail();
-        String password = request.getPassword();
-        String confPassword = request.getConfPassword();
-
-        if (email == null || password == null) {
-            return ResponseEntity.badRequest().body(Map.of("error", "Missing credentials"));
-        }
-
-        Optional<User> optionalUser = userRepository.findByEmail(email);
-        if (optionalUser.isPresent()) {
-            return ResponseEntity
-                .status(HttpStatus.CONFLICT)
-                .body(Map.of("error", "User already exists"));
-        }
-
-        if (!password.equals(confPassword)) {
-            return ResponseEntity.badRequest().body(Map.of("error", "Password and confirmation does not match"));
-        }
-
-        User user = new User();
-        user.setEmail(email);
-        user.setPassword(password);
-        user.setRole(Role.CUSTOMER);
-        
-        userRepository.save(user);
-
-        String token = jwtProvider.generateToken(email, user.getRole());
-
-        return ResponseEntity.ok(Map.of(
-            "token", token,
-            "message", "User registered successfully",
-            "email", email,
-            "role", user.getRole()
-        ));
+        UserDetailDto user = authService.register(request);
+        return ResponseEntity.ok(Map.of("user", user, "message", Message.REGISTER));
     }
 }

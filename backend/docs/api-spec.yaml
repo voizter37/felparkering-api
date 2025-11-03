@@ -40,16 +40,11 @@ paths:
           content:
             application/json:
               schema:
-                allOf:
-                  - $ref: '#/components/schemas/LoginResponse'
-                  - example:
-                      token: eyJhbGciOiJIUzI1NiIsInR5cCI6...
-                      email: user@example.com
-                      role: CUSTOMER
+                $ref: '#/components/schemas/LoginResponse'
               example:
-                token: eyJhbGciOiJIUzI1NiIsInR5cCI6...
-                email: user@example.com
-                role: CUSTOMER
+                userDetails:
+                  token: eyJhbGciOiJIUzI1NiIsInR5cCI6...
+                message: User logged in successfully
         '400':
           description: Bad Request
           headers: {}
@@ -122,18 +117,11 @@ paths:
           content:
             application/json:
               schema:
-                allOf:
-                  - $ref: '#/components/schemas/RegisterResponse'
-                  - example:
-                      token: eyJhbGciOiJIUzI1NiIsInR5cCI6...
-                      message: User registered successfully
-                      email: user@example.com
-                      role: CUSTOMER
+                $ref: '#/components/schemas/RegisterResponse'
               example:
-                token: eyJhbGciOiJIUzI1NiIsInR5cCI6...
-                message: User registered successfully
-                email: user@example.com
-                role: CUSTOMER
+                  user: 
+                    token: eyJhbGciOiJIUzI1NiIsInR5cCI6...
+                  message: User registered successfully
         '400':
           description: Bad Request
           headers: {}
@@ -1003,21 +991,18 @@ components:
     LoginResponse:
       title: LoginResponse
       required:
-        - token
-        - email
-        - role
+        - user
+        - message
       type: object
       properties:
-        token:
-          type: string
-        email:
-          type: string
-        role:
+        user:
+          $ref: '#/components/schemas/UserDetailDto'
+        message:
           type: string
       example:
-        token: eyJhbGciOiJIUzI1NiIsInR5cCI6...
-        email: user@example.com
-        role: CUSTOMER
+        user:
+          token: eyJhbGciOiJIUzI1NiIsInR5cCI6...
+        message: User logged in successfully
     ErrorMissingCredentials:
       title: ErrorMissingCredentials
       required:
@@ -1051,7 +1036,7 @@ components:
     ErrorUserConflict:
       title: ErrorUserConflict
       required:
-        - message
+        - error
       type: object
       properties:
         error:
@@ -1072,24 +1057,16 @@ components:
       title: RegisterResponse
       required:
         - token
-        - message
-        - email
-        - role
       type: object
       properties:
-        token:
-          type: string
+        user:
+          $ref: '#/components/schemas/UserDetailDto'
         message:
           type: string
-        email:
-          type: string
-        role:
-          type: string
       example:
-        token: eyJhbGciOiJIUzI1NiIsInR5cCI6...
+        user:
+          token: eyJhbGciOiJIUzI1NiIsInR5cCI6...
         message: User registered successfully
-        email: user@example.com
-        role: CUSTOMER
     ReportCreatedResponse:
       title: ReportCreatedResponse
       required:
@@ -1235,6 +1212,16 @@ components:
           attendantGroup:
             id: 1
             namn: Stockholm Södra
+    UserDetailDto:
+      title: UserDetailDto
+      required:
+        - token
+      type: object
+      properties:
+        token:
+          type: string
+      example:
+          token: eyJhbGciOiJIUzI1NiIsInR5cCI6...
     DeletedResponse:
       title: DeletedResponse
       required:

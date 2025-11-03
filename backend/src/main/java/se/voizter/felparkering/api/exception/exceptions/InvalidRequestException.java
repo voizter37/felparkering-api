@@ -1,4 +1,4 @@
-package se.voizter.felparkering.api.exception;
+package se.voizter.felparkering.api.exception.exceptions;
 
 public class InvalidRequestException extends RuntimeException{
     private final String field;

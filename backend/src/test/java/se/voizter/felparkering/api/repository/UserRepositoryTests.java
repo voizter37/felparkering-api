@@ -13,7 +13,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 
 import se.voizter.felparkering.api.model.AttendantGroup;
 import se.voizter.felparkering.api.model.User;
-import se.voizter.felparkering.api.type.Role;
+import se.voizter.felparkering.api.enums.Role;
 
 @DataJpaTest
 public class UserRepositoryTests {

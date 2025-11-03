@@ -2,7 +2,7 @@ import { useApi } from '../services/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useState } from 'react';
 import { Text, View } from "react-native";
-import { decodeJwt } from '../utils/decodeJwt';
+import { decodeJwt, sanitizeToken } from '../utils/decodeJwt';
 import { useUser } from '../context/UserContext';
 import { router } from 'expo-router';
 import FormTextField from './FormTextField';
@@ -31,18 +31,53 @@ export default function Register(props: RegisterProps) {
             setFormError(null);
 
             const response = await api.register({ email, password, confPassword })
-            const token = response.data.token;
+            let token: string | null | undefined = response?.data?.user.token;
+            
+            token = sanitizeToken(token);
+
+            if (!token) {
+                console.warn("No JWT found in response", response?.data, response?.headers);
+                setFormError("Login failed (no token).");
+                return;
+            }
 
             await AsyncStorage.setItem("token", token);
 
-            const decoded = decodeJwt<{ email: string; role: string }>(token);
-                        
-            if (decoded) {
-                setUser({ email: decoded.sub, role: decoded.role });
+            const payload = decodeJwt<any>(token);
+            if (!payload) {
+                await AsyncStorage.removeItem("token");
+                setFormError("Login failed (invalid token).");
+                return;
             }
-            router.push("/home");
+
+            const userEmail = payload.email ?? payload.sub ?? null;
+            const userRole = payload.role ?? null;
+
+            if (!userEmail) {
+                await AsyncStorage.removeItem("token");
+                setFormError("Login failed (no identity in token).");
+                return;
+            }
+                        
+            setUser({ email: userEmail, role: userRole });
+
+            switch (userRole) {
+                case "CUSTOMER":
+                    router.replace("/home");
+                    break;
+                case "ATTENDANT":
+                    router.replace("/attendant");
+                    break;
+                case "ADMIN":
+                    router.replace("/admin");
+                    break;
+                default:
+                    setFormError("Login failed, please check your credentials.");
+                    break;
+            }
+            
         } catch (error: any) {
-            const errors = error.response?.data?.errors;
+            const errors = error.response?.data?.errors
             if (Array.isArray(errors)) {
                 const newFieldErrors: Record<string, string> = {};
                 errors.forEach(e => {
@@ -50,7 +85,12 @@ export default function Register(props: RegisterProps) {
                 });
                 setFieldErrors(newFieldErrors);
             } else {
-                setFormError("Registration failed, please check your credentials.");
+                const singleError = error.response?.data?.error;
+                if (singleError) {
+                    setFormError(singleError);
+                } else {
+                    setFormError("Registration failed, please check your credentials.");
+                }
             }
     }}
 

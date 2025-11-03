@@ -9,7 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import se.voizter.felparkering.api.type.Role;
+import se.voizter.felparkering.api.enums.Role;
 
 public class JwtProviderTests {
     

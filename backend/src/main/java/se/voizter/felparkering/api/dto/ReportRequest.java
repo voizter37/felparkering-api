@@ -3,7 +3,7 @@ package se.voizter.felparkering.api.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import se.voizter.felparkering.api.type.ParkingViolationCategory;
+import se.voizter.felparkering.api.enums.ParkingViolationCategory;
 
 public class ReportRequest {
     @NotNull(message = "Id is required")

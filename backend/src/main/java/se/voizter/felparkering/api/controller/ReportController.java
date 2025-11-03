@@ -27,9 +27,9 @@ import se.voizter.felparkering.api.repository.AddressRepository;
 import se.voizter.felparkering.api.repository.AttendantGroupRepository;
 import se.voizter.felparkering.api.repository.ReportRepository;
 import se.voizter.felparkering.api.repository.UserRepository;
-import se.voizter.felparkering.api.type.ParkingViolationCategory;
-import se.voizter.felparkering.api.type.Role;
-import se.voizter.felparkering.api.type.Status;
+import se.voizter.felparkering.api.enums.ParkingViolationCategory;
+import se.voizter.felparkering.api.enums.Role;
+import se.voizter.felparkering.api.enums.Status;
 
 @RestController
 @RequestMapping("/reports")

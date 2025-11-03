@@ -4,8 +4,8 @@ import java.time.Instant;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import jakarta.persistence.*;
-import se.voizter.felparkering.api.type.ParkingViolationCategory;
-import se.voizter.felparkering.api.type.Status;
+import se.voizter.felparkering.api.enums.ParkingViolationCategory;
+import se.voizter.felparkering.api.enums.Status;
 
 @Entity
 @Table(name = "reports")

@@ -19,7 +19,6 @@ import se.voizter.felparkering.api.service.RouteService;
 @RequestMapping("/addresses")
 public class AddressController {
     private final AddressRepository repository;
-
     private final RouteService routeService;
 
     public AddressController(AddressRepository repository, RouteService routeService) {

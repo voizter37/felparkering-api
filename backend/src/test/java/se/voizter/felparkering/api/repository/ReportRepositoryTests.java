@@ -15,9 +15,9 @@ import org.springframework.dao.DataIntegrityViolationException;
 import se.voizter.felparkering.api.model.AttendantGroup;
 import se.voizter.felparkering.api.model.Report;
 import se.voizter.felparkering.api.model.User;
-import se.voizter.felparkering.api.type.ParkingViolationCategory;
-import se.voizter.felparkering.api.type.Role;
-import se.voizter.felparkering.api.type.Status;
+import se.voizter.felparkering.api.enums.ParkingViolationCategory;
+import se.voizter.felparkering.api.enums.Role;
+import se.voizter.felparkering.api.enums.Status;
 
 @DataJpaTest
 public class ReportRepositoryTests {

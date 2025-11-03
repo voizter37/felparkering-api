@@ -9,6 +9,7 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
+import jakarta.transaction.Transactional;
 import se.voizter.felparkering.api.dto.AddressSuggestionDto;
 import se.voizter.felparkering.api.repository.AddressRepository;
 
@@ -35,6 +36,7 @@ public class AddressService {
         this.addressRepository = addressRepository;
     }
 
+    @Transactional
     public List<AddressSuggestionDto> getAddresses(String query) {
         return addressRepository.searchByStreet(query)
             .stream()
@@ -42,6 +44,7 @@ public class AddressService {
             .toList();
     }
 
+    @Transactional
     public Map<?,?> getRoute(double[] start, double[] end) {
         double startLat = start[0], startLon = start[1];
         double endLat   = end[0],   endLon   = end[1];

@@ -29,7 +29,7 @@ export default function Login(props: LoginProps) {
             setFormError(null);
 
             const response = await api.login({ email, password })
-            let token: string | null | undefined = response?.data?.token;
+            let token: string | null | undefined = response?.data?.user.token;
 
             token = sanitizeToken(token);
 
@@ -84,8 +84,12 @@ export default function Login(props: LoginProps) {
                 });
                 setFieldErrors(newFieldErrors);
             } else {
-                console.error("Login error", error?.response ?? error);
-                setFormError("Login failed, please check your credentials.");
+                const singleError = error.response?.data?.error;
+                if (singleError) {
+                    setFormError(singleError);
+                } else {
+                    setFormError("Login failed, please check your credentials.");
+                }
             }
     }}
 

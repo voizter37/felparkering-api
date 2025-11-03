@@ -12,7 +12,7 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import se.voizter.felparkering.api.type.Role;
+import se.voizter.felparkering.api.enums.Role;
 
 /**
  * Skapar, validerar och läser information från JWT-tokens.

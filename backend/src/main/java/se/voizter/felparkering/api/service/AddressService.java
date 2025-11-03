@@ -9,16 +9,22 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
+import jakarta.transaction.Transactional;
+import se.voizter.felparkering.api.dto.AddressSuggestionDto;
+import se.voizter.felparkering.api.repository.AddressRepository;
+
 @Service
-public class RouteService {
+public class AddressService {
 
     private final RestClient rest;
     private final String apiKey;
+    private final AddressRepository addressRepository;
 
-    public RouteService(
+    public AddressService(
         RestClient.Builder builder,
         @Value("${open_route_service_url:https://api.openrouteservice.org}") String baseUrl,
-        @Value("${open_route_service_api}") String apiKey
+        @Value("${open_route_service_api}") String apiKey,
+        AddressRepository addressRepository
         ) {
         if (apiKey == null || apiKey.isBlank()) {
             throw new IllegalStateException(
@@ -27,10 +33,19 @@ public class RouteService {
         }
         this.rest = builder.baseUrl(baseUrl).build();
         this.apiKey = apiKey;
+        this.addressRepository = addressRepository;
     }
 
-    public Map<?,?> getRoute(double[] start, double[] end) {
+    @Transactional
+    public List<AddressSuggestionDto> getAddresses(String query) {
+        return addressRepository.searchByStreet(query)
+            .stream()
+            .flatMap(a -> AddressSuggestionDto.fromEntity(a).stream())
+            .toList();
+    }
 
+    @Transactional
+    public Map<?,?> getRoute(double[] start, double[] end) {
         double startLat = start[0], startLon = start[1];
         double endLat   = end[0],   endLon   = end[1];
 

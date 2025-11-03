@@ -1,6 +1,6 @@
 export function sanitizeToken(raw: string | null | undefined): string | null {
     if (!raw) return null;
-    let t = raw.replace(/^['"]|['"]$/g, "");
+    let t = raw.toString().replace(/^['"]|['"]$/g, "");
     t = t.replace(/^Bearer\s+/i, "").trim();
     return /^[^.]+\.[^.]+\.[^.]+$/.test(t) ? t : null;
 }

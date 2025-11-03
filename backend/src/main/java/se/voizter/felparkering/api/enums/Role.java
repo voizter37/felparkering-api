@@ -1,4 +1,4 @@
-package se.voizter.felparkering.api.type;
+package se.voizter.felparkering.api.enums;
 
 public enum Role {
     ADMIN,

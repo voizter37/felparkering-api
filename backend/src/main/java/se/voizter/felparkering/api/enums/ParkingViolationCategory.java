@@ -1,4 +1,4 @@
-package se.voizter.felparkering.api.type;
+package se.voizter.felparkering.api.enums;
 
 public enum ParkingViolationCategory {
     NO_PARKING_FEE_PAID,

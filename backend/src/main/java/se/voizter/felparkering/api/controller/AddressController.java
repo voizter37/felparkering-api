@@ -12,30 +12,24 @@ import org.springframework.web.bind.annotation.RestController;
 
 import se.voizter.felparkering.api.dto.AddressSuggestionDto;
 import se.voizter.felparkering.api.dto.RouteRequest;
-import se.voizter.felparkering.api.repository.AddressRepository;
-import se.voizter.felparkering.api.service.RouteService;
+import se.voizter.felparkering.api.service.AddressService;
 
 @RestController
 @RequestMapping("/addresses")
 public class AddressController {
-    private final AddressRepository repository;
-    private final RouteService routeService;
+    private final AddressService addressService;
 
-    public AddressController(AddressRepository repository, RouteService routeService) {
-        this.repository = repository;
-        this.routeService = routeService;
+    public AddressController(AddressService addressService) {
+        this.addressService = addressService;
     }
 
     @GetMapping("/search")
     public List<AddressSuggestionDto> search(@RequestParam String query) {
-        return repository.searchByStreet(query)
-            .stream()
-            .flatMap(a -> AddressSuggestionDto.fromEntity(a).stream())
-            .toList();
+        return addressService.getAddresses(query);
     }
 
     @PostMapping("/route")
     public Map<?,?> getRoute(@RequestBody RouteRequest request) {
-        return routeService.getRoute(request.getStart(), request.getEnd());
+        return addressService.getRoute(request.getStart(), request.getEnd());
     }
 }

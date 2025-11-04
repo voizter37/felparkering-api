@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, Pressable } from "react-native";
+import { View, Text, Pressable } from "react-native";
 import WebMap from "./WebMap";
 import { cities } from "../constants/cities";
 import { useCallback, useState } from "react";

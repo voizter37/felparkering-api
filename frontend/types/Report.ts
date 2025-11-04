@@ -1,6 +1,8 @@
 import type { ParkingViolationValue } from "../constants/parkingCategories";
 
 export interface Report {
+    id: number,
+    status: string;
     attendantGroup: any;
     longitude: number;
     latitude: number;

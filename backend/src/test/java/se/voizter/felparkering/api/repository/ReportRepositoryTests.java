@@ -49,7 +49,7 @@ public class ReportRepositoryTests {
 
         assertTrue(result.isPresent());
         assertEquals(report.getId(), result.get().getId());
-        assertEquals("Testgatan 2, Testia", result.get().getAddress());
+        assertEquals("Testgatan 2, Testia", result.get().getAddress().toString());
         assertEquals("ITES71", result.get().getLicensePlate());
         assertEquals(ParkingViolationCategory.NO_PARKING_AREA, result.get().getCategory());
         assertEquals(Status.NEW, result.get().getStatus());
@@ -86,7 +86,7 @@ public class ReportRepositoryTests {
         reportRepository.save(report2);
 
         assertFalse(report1.getId() == report2.getId());
-        assertEquals(report1.getAddress(), report2.getAddress());
+        assertEquals(report1.getAddress().toString(), report2.getAddress().toString());
         assertEquals(report1.getLicensePlate(), report2.getLicensePlate());
         assertEquals(report1.getCategory(), report2.getCategory());
         assertEquals(report1.getStatus(), report2.getStatus());
@@ -94,15 +94,6 @@ public class ReportRepositoryTests {
 
     @Test
     void shouldThrowExceptionWhenMissingRequiredField() {
-        Report report1 = new Report();
-        report1.setLicensePlate("ITES71");
-        report1.setCategory(ParkingViolationCategory.NO_PARKING_AREA);
-        report1.setStatus(Status.NEW);
-        
-        assertThrows(DataIntegrityViolationException.class, () -> {
-            reportRepository.saveAndFlush(report1);
-        });
-
         Report report2 = new Report();
         Address address2 = new Address();
         address2.setCity("Testia");

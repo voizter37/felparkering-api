@@ -27,7 +27,7 @@ export default function Reports() {
         useCallback(() => {
         const fetchReports = async () => {
             try {
-                const response = await api.getAllReports();
+                const response = await api.getReports();
                 setReports(response.data);
             } catch (error: any) {
                 if (axios.isAxiosError(error) && error.response) {

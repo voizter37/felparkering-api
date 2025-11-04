@@ -4,9 +4,11 @@ import java.util.List;
 import java.util.Objects;
 import org.springframework.stereotype.Service;
 
+import jakarta.annotation.Nullable;
 import jakarta.transaction.Transactional;
 import se.voizter.felparkering.api.dto.ReportDetailDto;
 import se.voizter.felparkering.api.dto.ReportRequest;
+import se.voizter.felparkering.api.dto.UserRequest;
 import se.voizter.felparkering.api.enums.Message;
 import se.voizter.felparkering.api.enums.Role;
 import se.voizter.felparkering.api.enums.Status;
@@ -19,6 +21,7 @@ import se.voizter.felparkering.api.model.User;
 import se.voizter.felparkering.api.repository.AddressRepository;
 import se.voizter.felparkering.api.repository.AttendantGroupRepository;
 import se.voizter.felparkering.api.repository.ReportRepository;
+import se.voizter.felparkering.api.repository.UserRepository;
 
 @Service
 public class ReportService {
@@ -26,23 +29,36 @@ public class ReportService {
     private final AddressRepository addressRepository;
     private final ReportRepository reportRepository;
     private final AttendantGroupRepository groupRepository;
+    private final UserRepository userRepository;
 
-    public ReportService(AddressRepository addressRepository, ReportRepository reportRepository, AttendantGroupRepository groupRepository) {
+    public ReportService(AddressRepository addressRepository, ReportRepository reportRepository, AttendantGroupRepository groupRepository, UserRepository userRepository) {
         this.addressRepository = addressRepository;
         this.reportRepository = reportRepository;
         this.groupRepository = groupRepository;
+        this.userRepository = userRepository;
     }
 
     @Transactional
-    public List<ReportDetailDto> getAll(User user) {
+    public List<ReportDetailDto> getAll(User user, @Nullable Status status, @Nullable UserRequest assignedTo) {
         Role role = user.getRole();
 
-        List<Report> reports = switch (role) {
-            case ADMIN -> reportRepository.findAll();
-            case ATTENDANT -> reportRepository.findByAttendantGroup(user.getAttendantGroup());
-            case CUSTOMER -> reportRepository.findByCreatedBy(user);
-            default -> List.of();
-        };
+        User attendant = assignedTo != null ? userRepository.findByEmail(assignedTo.email())
+            .orElseThrow(() -> new NotFoundException(Message.USER_NOT_FOUND.toString())) : null;
+
+        List<Report> reports;
+
+        switch (role) {
+            case ADMIN -> {
+                reports = reportRepository.findbyFilters(status);
+            }
+            case ATTENDANT -> {
+                reports = reportRepository.findbyFiltersInGroup(status, attendant, user.getAttendantGroup());
+            }
+            case CUSTOMER -> {
+                reports = reportRepository.findbyFiltersCreatedBy(status, user);
+            }
+            default -> throw new InvalidCredentialsException(Message.REPORT_NO_PERMISSION.toString());
+        }
 
         return reports.stream().map(this::toDetailDto).toList();
     }

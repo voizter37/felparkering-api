@@ -11,7 +11,6 @@ export function useApi() {
         headers: {
             'Content-Type': 'application/json'
         },
-        withCredentials: true
     });
 
     api.interceptors.request.use(
@@ -39,7 +38,12 @@ export function useApi() {
         login: (data: any) => api.post('/login', data),
         register: (data: any) => api.post('/register', data),
         createReport: (data: any) => api.post('/reports', data),
-        getAllReports: () => api.get('/reports'),
+        getReports: (params?: {status?: string, assignedTo?: string}) => api.get('/reports', {
+            params: {
+                status: params?.status,
+                assignedTo: params?.assignedTo,
+            },
+        }),
         getReport: (id: any) => api.get(`/reports/${id}`),
         updateReport: (id: any, data: any) => api.put(`/reports/${id}`, data),
         createAttendant: (data: any) => api.post('admin/attendant', data),

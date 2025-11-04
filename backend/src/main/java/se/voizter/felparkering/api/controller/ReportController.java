@@ -13,11 +13,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 import se.voizter.felparkering.api.dto.ReportDetailDto;
 import se.voizter.felparkering.api.dto.ReportRequest;
+import se.voizter.felparkering.api.dto.UserRequest;
 import se.voizter.felparkering.api.model.User;
 import se.voizter.felparkering.api.repository.UserRepository;
 import se.voizter.felparkering.api.service.ReportService;
@@ -43,8 +45,11 @@ public class ReportController {
     }
 
     @GetMapping
-    public ResponseEntity<?> all() {
-        List<ReportDetailDto> reports = reportService.getAll(currentUser());
+    public ResponseEntity<?> all(
+        @RequestParam(required = false) Status status,
+        @RequestParam(required = false) UserRequest assignedTo
+        ) {
+        List<ReportDetailDto> reports = reportService.getAll(currentUser(), status, assignedTo);
         return ResponseEntity.ok(reports);
     }
 

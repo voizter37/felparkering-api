@@ -82,4 +82,9 @@ public class Address {
     public void setDistanceFromCity(double distanceFromCity) {
         this.distanceFromCity = distanceFromCity;
     }
+
+    @Override
+    public String toString() {
+        return this.street + " " + this.houseNumbers.get(0) + ", " + this.city;
+    }
 }

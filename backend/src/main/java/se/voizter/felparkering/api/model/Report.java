@@ -15,8 +15,9 @@ public class Report {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private String location;
+    @ManyToOne
+    @JoinColumn(name = "address_id")
+    private Address address;
 
     @Column(nullable = false)
     private double latitude;
@@ -62,12 +63,12 @@ public class Report {
         this.id = id;
     }
 
-    public String getLocation() {
-        return location;
+    public Address getAddress() {
+        return address;
     }
 
-    public void setLocation(String location) {
-        this.location = location;
+    public void setAddress(Address address) {
+        this.address = address;
     }
 
     public double getLatitude() {

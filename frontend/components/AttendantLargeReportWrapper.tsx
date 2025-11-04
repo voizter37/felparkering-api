@@ -1,6 +1,6 @@
 import { View, Text, TouchableOpacity, Pressable } from "react-native";
 import WebMap from "./WebMap";
-import { cities } from "../types/cities";
+import { cities } from "../constants/cities";
 import { useCallback, useState } from "react";
 import Chip from "./Chip";
 

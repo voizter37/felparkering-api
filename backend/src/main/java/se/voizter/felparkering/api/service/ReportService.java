@@ -1,24 +1,16 @@
 package se.voizter.felparkering.api.service;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
 import se.voizter.felparkering.api.dto.ReportDetailDto;
 import se.voizter.felparkering.api.dto.ReportRequest;
 import se.voizter.felparkering.api.enums.Message;
-import se.voizter.felparkering.api.enums.ParkingViolationCategory;
 import se.voizter.felparkering.api.enums.Role;
 import se.voizter.felparkering.api.enums.Status;
 import se.voizter.felparkering.api.exception.exceptions.InvalidCredentialsException;
-import se.voizter.felparkering.api.exception.exceptions.InvalidRequestException;
 import se.voizter.felparkering.api.exception.exceptions.NotFoundException;
 import se.voizter.felparkering.api.model.Address;
 import se.voizter.felparkering.api.model.AttendantGroup;
@@ -62,11 +54,8 @@ public class ReportService {
         }
 
         Address address = resolveAddress(request);
-
         Report report = new Report();
-        report.setLocation(request.street() + " " + request.houseNumber() + ", " + request.city());
-        report.setLatitude(address.getLatitude());
-        report.setLongitude(address.getLongitude());
+        report.setAddress(address);
         report.setLicensePlate(request.licensePlate().toUpperCase());
         report.setCategory(request.category());
         report.setCreatedBy(user);
@@ -114,9 +103,10 @@ public class ReportService {
     private ReportDetailDto toDetailDto(Report report) {
         return new ReportDetailDto(
             report.getId(),
-            report.getLocation(),
+            report.getAddress(),
             report.getLicensePlate(),
             report.getCategory(),
+            report.getAttendantGroup(),
             report.getCreatedOn(),
             report.getUpdatedOn(),
             report.getStatus()
@@ -124,13 +114,16 @@ public class ReportService {
     }
 
     private Address resolveAddress(ReportRequest request) {
-        Optional<Address> maybeAddress = addressRepository.findById(request.id());
+        Address address = addressRepository.findById(request.id())
+            .orElseThrow(() -> new NotFoundException(Message.ADDRESS_NOT_FOUND.toString()));;
 
-        if (!addressRepository.existsByStreetIgnoreCase(request.street()) || maybeAddress.isEmpty()) {
-            throw new NotFoundException(Message.ADDRESS_NOT_FOUND.toString());
+        if (request.houseNumber() != null && !request.houseNumber().isBlank()) {
+            address.setHouseNumbers(List.of(request.houseNumber()));
+        } else {
+            address.setHouseNumbers(List.of());
         }
 
-        return maybeAddress.get();
+        return address;
     }
 
     private boolean canAccess(User user, Report report) {

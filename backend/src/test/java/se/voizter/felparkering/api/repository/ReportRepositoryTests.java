@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Arrays;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.dao.DataIntegrityViolationException;
 
+import se.voizter.felparkering.api.model.Address;
 import se.voizter.felparkering.api.model.AttendantGroup;
 import se.voizter.felparkering.api.model.Report;
 import se.voizter.felparkering.api.model.User;
@@ -33,7 +35,11 @@ public class ReportRepositoryTests {
     @Test
     void canSaveAndFindById() {
         Report report = new Report();
-        report.setLocation("Testgatan 2, Testia");
+        Address address = new Address();
+        address.setCity("Testia");
+        address.setStreet("Testgatan");
+        address.setHouseNumbers(Arrays.asList("2"));
+        report.setAddress(address);
         report.setLicensePlate("ITES71");
         report.setCategory(ParkingViolationCategory.NO_PARKING_AREA);
         report.setStatus(Status.NEW);
@@ -43,7 +49,7 @@ public class ReportRepositoryTests {
 
         assertTrue(result.isPresent());
         assertEquals(report.getId(), result.get().getId());
-        assertEquals("Testgatan 2, Testia", result.get().getLocation());
+        assertEquals("Testgatan 2, Testia", result.get().getAddress());
         assertEquals("ITES71", result.get().getLicensePlate());
         assertEquals(ParkingViolationCategory.NO_PARKING_AREA, result.get().getCategory());
         assertEquals(Status.NEW, result.get().getStatus());
@@ -58,21 +64,29 @@ public class ReportRepositoryTests {
     @Test
     void canSaveReportWithDuplicateParams() {
         Report report1 = new Report();
-        report1.setLocation("Testgatan 2, Testia");
+        Address address1 = new Address();
+        address1.setCity("Testia");
+        address1.setStreet("Testgatan");
+        address1.setHouseNumbers(Arrays.asList("2"));
+        report1.setAddress(address1);
         report1.setLicensePlate("ITES71");
         report1.setCategory(ParkingViolationCategory.NO_PARKING_AREA);
         report1.setStatus(Status.NEW);
         reportRepository.save(report1);
 
         Report report2 = new Report();
-        report2.setLocation("Testgatan 2, Testia");
+        Address address2 = new Address();
+        address2.setCity("Testia");
+        address2.setStreet("Testgatan");
+        address2.setHouseNumbers(Arrays.asList("2"));
+        report2.setAddress(address2);
         report2.setLicensePlate("ITES71");
         report2.setCategory(ParkingViolationCategory.NO_PARKING_AREA);
         report2.setStatus(Status.NEW);
         reportRepository.save(report2);
 
         assertFalse(report1.getId() == report2.getId());
-        assertEquals(report1.getLocation(), report2.getLocation());
+        assertEquals(report1.getAddress(), report2.getAddress());
         assertEquals(report1.getLicensePlate(), report2.getLicensePlate());
         assertEquals(report1.getCategory(), report2.getCategory());
         assertEquals(report1.getStatus(), report2.getStatus());
@@ -90,7 +104,11 @@ public class ReportRepositoryTests {
         });
 
         Report report2 = new Report();
-        report2.setLocation("Testgatan 2, Testia");
+        Address address2 = new Address();
+        address2.setCity("Testia");
+        address2.setStreet("Testgatan");
+        address2.setHouseNumbers(Arrays.asList("2"));
+        report2.setAddress(address2);
         report2.setCategory(ParkingViolationCategory.NO_PARKING_AREA);
         report2.setStatus(Status.NEW);
         
@@ -99,7 +117,11 @@ public class ReportRepositoryTests {
         });
 
         Report report3 = new Report();
-        report3.setLocation("Testgatan 2, Testia");
+        Address address3 = new Address();
+        address3.setCity("Testia");
+        address3.setStreet("Testgatan");
+        address3.setHouseNumbers(Arrays.asList("2"));
+        report3.setAddress(address3);
         report3.setLicensePlate("ITES71");
         report3.setStatus(Status.NEW);
         
@@ -108,7 +130,11 @@ public class ReportRepositoryTests {
         });
 
         Report report4 = new Report();
-        report4.setLocation("Testgatan 2, Testia");
+        Address address4 = new Address();
+        address4.setCity("Testia");
+        address4.setStreet("Testgatan");
+        address4.setHouseNumbers(Arrays.asList("2"));
+        report4.setAddress(address4);
         report4.setLicensePlate("ITES71");
         report2.setCategory(ParkingViolationCategory.NO_PARKING_AREA);
         
@@ -124,7 +150,10 @@ public class ReportRepositoryTests {
         AttendantGroup savedGroup = groupRepository.save(group);
 
         Report report = new Report();
-        report.setLocation("Testgatan 3");
+        Address address = new Address();
+        address.setStreet("Testgatan");
+        address.setHouseNumbers(Arrays.asList("3"));
+        report.setAddress(address);
         report.setLicensePlate("GROUP123");
         report.setCategory(ParkingViolationCategory.OUTSIDE_MARKED_SPACE);
         report.setStatus(Status.NEW);
@@ -145,7 +174,10 @@ public class ReportRepositoryTests {
         User savedUser = userRepository.save(user);
 
         Report report = new Report();
-        report.setLocation("Uservägen 1");
+        Address address = new Address();
+        address.setStreet("Uservägen");
+        address.setHouseNumbers(Arrays.asList("1"));
+        report.setAddress(address);
         report.setLicensePlate("USER123");
         report.setCategory(ParkingViolationCategory.RENTED_SPACE_OCCUPIED);
         report.setStatus(Status.ASSIGNED);
@@ -159,7 +191,10 @@ public class ReportRepositoryTests {
     @Test
     void creationAndUpdateTimestampsAreSet() {
         Report report = new Report();
-        report.setLocation("Tidsgatan 9");
+        Address address = new Address();
+        address.setStreet("Tidsgatan");
+        address.setHouseNumbers(Arrays.asList("9"));
+        report.setAddress(address);
         report.setLicensePlate("TIME123");
         report.setCategory(ParkingViolationCategory.NO_PARKING_AREA);
         report.setStatus(Status.NEW);
@@ -173,7 +208,10 @@ public class ReportRepositoryTests {
     @Test
     void canUpdateReportStatus() {
         Report report = new Report();
-        report.setLocation("Uppdateringsgatan 9");
+        Address address = new Address();
+        address.setStreet("Uppdateringsgatan");
+        address.setHouseNumbers(Arrays.asList("9"));
+        report.setAddress(address);
         report.setLicensePlate("UPDATE1");
         report.setCategory(ParkingViolationCategory.INVALID_TICKET);
         report.setStatus(Status.NEW);

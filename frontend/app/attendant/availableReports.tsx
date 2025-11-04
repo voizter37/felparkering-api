@@ -2,12 +2,13 @@ import { ScrollView, View, Text } from "react-native";
 import AttendantReportWrapper from "../../components/AttendantReportWrapper";
 import AttendantLargeReportWrapper from "../../components/AttendantLargeReportWrapper";
 import { useCallback, useEffect, useState } from "react";
-import { Report } from "../../types/Report";
+import { Report } from "../../types/report";
 import { router, useFocusEffect } from "expo-router";
 import { useApi } from "../../services/api";
 import axios from "axios";
-import { parkingCategories } from "../../types/parkingCategories";
+import { parkingCategories } from "../../constants/parkingCategories";
 import { useUser } from "../../context/UserContext";
+import { prettyAddress } from "../../utils/prettyPrinter";
 
 export default function AvailableReports() {
     const [activeReport, setActiveReport] = useState<Report | null>(null);
@@ -27,6 +28,7 @@ export default function AvailableReports() {
         const fetchNewReports = async () => {
             try {
                 const response = await api.getAllReports();
+                console.log(response.data);
                 setNewReports(response.data);
             } catch (error: any) {
                 if (axios.isAxiosError(error) && error.response) {
@@ -49,12 +51,12 @@ export default function AvailableReports() {
                     return (
                         <AttendantReportWrapper
                             key={report.id}
-                            address={report.location} 
+                            address={prettyAddress(report.address)} 
                             licensePlate={report.licensePlate} 
                             violation={parkingCategories.find(item => item.value === report.category)?.label ?? "Unknown violation"} 
                             timeStamp={report.createdOn}
                             onPress={() => setActiveReport(report)}
-                            selected={activeReport?.location === report.location && activeReport?.licensePlate === report.licensePlate}
+                            selected={activeReport?.address === report.address && activeReport?.licensePlate === report.licensePlate}
                         />
                     );
                 })}
@@ -62,12 +64,12 @@ export default function AvailableReports() {
             <View className="border my-4 border-slate-200"></View>
             <View className="w-3/4">
                 {activeReport ? (<AttendantLargeReportWrapper 
-                    address={activeReport.location}
+                    address={prettyAddress(activeReport.address)}
                     hq={activeReport.attendantGroup.name}
                     licensePlate={activeReport.licensePlate}
                     violation={parkingCategories.find(item => item.value === activeReport.category)?.label ?? "Unknown violation"}
                     timeStamp={activeReport.createdOn}
-                    coords={[activeReport.latitude, activeReport.longitude]}      
+                    coords={[activeReport.address.latitude, activeReport.address.longitude]}      
                 />
                 ) : (
                     <View className="flex-1 rounded-lg items-center justify-center m-4 p-4 bg-gray-300">

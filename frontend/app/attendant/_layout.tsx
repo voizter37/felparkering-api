@@ -2,6 +2,7 @@ import Icon from '@expo/vector-icons/Ionicons';
 import { router, Tabs } from "expo-router";
 import { Text, TouchableOpacity } from "react-native";
 import { useUser } from "../../context/UserContext";
+import Toast from 'react-native-toast-message';
 
 export default function AttendantLayout() {
     const { logout } = useUser();
@@ -44,7 +45,17 @@ export default function AttendantLayout() {
                         )
                     }}
                 />
-        </Tabs>
+            <Tabs.Screen
+                    name="myReports"
+                    options={{
+                        title: "My Reports",
+                        tabBarIcon: ({ color, size}) => (
+                            <Icon name="person-circle-outline" size={size} color={color}/>
+                        )
+                    }}
+                />
+            </Tabs>
+            <Toast />
         </>
     );
 }

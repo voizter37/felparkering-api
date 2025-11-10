@@ -1,20 +1,19 @@
-import { ScrollView, View, Text } from "react-native";
-import AttendantReportWrapper from "../../components/AttendantReportWrapper";
+import { View, Text } from "react-native";
 import AttendantLargeReportWrapper from "../../components/AttendantLargeReportWrapper";
 import { useCallback, useEffect, useState } from "react";
 import { Report } from "../../types/report";
 import { router, useFocusEffect } from "expo-router";
-import { useApi } from "../../services/api";
+import { getApiMessage, useApi } from "../../services/api";
 import axios from "axios";
 import { parkingCategories } from "../../constants/parkingCategories";
 import { useUser } from "../../context/UserContext";
 import { prettyAddress } from "../../utils/prettyPrinter";
 import ReportTable from "../../components/ReportTable";
+import Toast from "react-native-toast-message";
 
 export default function AvailableReports() {
     const [activeReport, setActiveReport] = useState<Report | null>(null);
     const [newReports, setNewReports] = useState([]);
-    const [myReports, setMyReports] = useState([]);
 
     const api = useApi();
     const {user} = useUser();
@@ -35,49 +34,33 @@ export default function AvailableReports() {
                 if (axios.isAxiosError(error) && error.response) {
                     console.log(error.response.data.error);
                 }
-            }};
-
-            fetchNewReports();
+            }
+        };
+        fetchNewReports();
         }, [])
     );
 
-    useFocusEffect(
-        useCallback(() => {
-        const fetchMyReports = async () => {
-            try {
-                const response = await api.getReports({assignedTo: user?.email});
-                setMyReports(response.data);
-            } catch (error: any) {
-                if (axios.isAxiosError(error) && error.response) {
-                    console.log(error.response.data.error);
-                }
-            }};
+    const handleAccept = async () => {
+        if (!activeReport) return;
 
-            fetchMyReports();
-        }, [])
-    );
+        try {
+            const update = await api.updateReport(activeReport.id, { status: "ASSIGNED" });
+            console.log(update);
+            Toast.show({ type: "success", text1: getApiMessage(update) });
+            const res = await api.getReports();
+            setNewReports(res.data);
+            setActiveReport(null);
+        } catch (error) {
+            Toast.show({ type: "error", text1: getApiMessage(error) });
+        } 
+    };
+
+    const handleCancel = () => {
+        setActiveReport(null);
+    };
 
     return (
         <View className="flex-column h-full bg-park-background">
-            <View className="m-4">
-                <Text className="text-2xl">My assigned reports</Text>
-                <ScrollView className="w-4/6">
-                    {myReports.map((report) => {
-                        return (
-                            <AttendantReportWrapper
-                                key={report.id}
-                                address={prettyAddress(report.address)} 
-                                licensePlate={report.licensePlate} 
-                                violation={parkingCategories.find(item => item.value === report.category)?.label ?? "Unknown violation"} 
-                                timeStamp={report.createdOn}
-                                onPress={() => setActiveReport(report)}
-                                selected={activeReport?.address === report.address && activeReport?.licensePlate === report.licensePlate}
-                            />
-                        );
-                    })}
-                </ScrollView>
-            </View>
-
             <View className="m-4">
                 <Text className="text-2xl">Active reports</Text>  
             </View>
@@ -87,12 +70,17 @@ export default function AvailableReports() {
                     <ReportTable 
                         columns={["Id", "Address", "Violation", "Status", "Date"]}
                         data={newReports}
-                        onRowPress={setActiveReport}
+                        selected={activeReport}
+                        onSelect={setActiveReport}
                     />
                 </View>
                 {activeReport ? ( 
                     <><View className="border my-4 border-slate-200"></View><View className="w-2/6">
                         <AttendantLargeReportWrapper
+                            primaryLabel="Accept"
+                            primaryAction={handleAccept}
+                            secondaryLabel="Cancel"
+                            secondaryAction={handleCancel}
                             address={prettyAddress(activeReport.address)}
                             hq={activeReport.attendantGroup.name}
                             licensePlate={activeReport.licensePlate}

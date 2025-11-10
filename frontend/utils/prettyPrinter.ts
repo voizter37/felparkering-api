@@ -26,3 +26,23 @@ export function prettyDate(date: string): string {
         return reportDate.toLocaleDateString();
     }
 }
+
+export function prettyDistance(distance: number) {
+    if (distance < 1000) {
+        return Math.round(distance) + " meter";
+    } else if (distance < 100000) {
+        return Math.round(distance / 100) / 10 + " km"
+    } else {
+        return Math.round(distance / 1000) / 100 + " miles"
+    }
+}
+
+export function prettyDuration(duration: number) {
+    if (duration < 60) {
+        return Math.round(duration) + " seconds";
+    } else if (duration < 3600) {
+        return Math.round(duration / 6) / 10 + " min"
+    } else {
+        return Math.round(duration / 360) / 10 + " h"
+    }
+}

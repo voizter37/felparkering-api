@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 import se.voizter.felparkering.api.dto.ReportDetailDto;
 import se.voizter.felparkering.api.dto.ReportRequest;
+import se.voizter.felparkering.api.dto.UpdateStatusRequest;
 import se.voizter.felparkering.api.dto.UserRequest;
 import se.voizter.felparkering.api.model.User;
 import se.voizter.felparkering.api.repository.UserRepository;
@@ -66,8 +67,8 @@ public class ReportController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateStatus(@RequestBody Status status, @PathVariable Long id) {
-        ReportDetailDto report = reportService.update(currentUser(), status, id);
+    public ResponseEntity<?> updateStatus(@RequestBody UpdateStatusRequest request, @PathVariable Long id) {
+        ReportDetailDto report = reportService.update(currentUser(), request.status(), id);
         return ResponseEntity.ok(Map.of("message", "Report updated successfully", "updatedOn", report.updatedOn()));
     }
 }

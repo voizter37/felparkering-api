@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import se.voizter.felparkering.api.exception.exceptions.AlreadyAssignedException;
 import se.voizter.felparkering.api.exception.exceptions.InvalidCredentialsException;
 import se.voizter.felparkering.api.exception.exceptions.MissingCredentialsException;
 import se.voizter.felparkering.api.exception.exceptions.NotFoundException;
@@ -77,7 +78,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(InvalidCredentialsException.class)
     public ResponseEntity<?> handleInvalidCredentials(InvalidCredentialsException exception) {
         return ResponseEntity
-            .status(HttpStatus.UNAUTHORIZED)
+            .status(HttpStatus.FORBIDDEN)
             .body(Map.of("error", exception.getMessage()));
     }
 
@@ -85,6 +86,13 @@ public class GlobalExceptionHandler {
     public ResponseEntity<?> handleNotFound(NotFoundException exception) {
         return ResponseEntity
             .status(HttpStatus.NOT_FOUND)
+            .body(Map.of("error", exception.getMessage()));
+    }
+
+    @ExceptionHandler(AlreadyAssignedException.class)
+    public ResponseEntity<?> handleAlreadyAssigned(AlreadyAssignedException exception) {
+        return ResponseEntity
+            .status(HttpStatus.CONFLICT)
             .body(Map.of("error", exception.getMessage()));
     }
 }

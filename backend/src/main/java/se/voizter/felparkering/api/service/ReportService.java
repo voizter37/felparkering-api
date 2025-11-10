@@ -12,6 +12,7 @@ import se.voizter.felparkering.api.dto.UserRequest;
 import se.voizter.felparkering.api.enums.Message;
 import se.voizter.felparkering.api.enums.Role;
 import se.voizter.felparkering.api.enums.Status;
+import se.voizter.felparkering.api.exception.exceptions.AlreadyAssignedException;
 import se.voizter.felparkering.api.exception.exceptions.InvalidCredentialsException;
 import se.voizter.felparkering.api.exception.exceptions.NotFoundException;
 import se.voizter.felparkering.api.model.Address;
@@ -87,6 +88,7 @@ public class ReportService {
         return toDetailDto(report);
     }
 
+    @Transactional
     public ReportDetailDto get(User user, Long id) {
         Report report = reportRepository.findById(id)
             .orElseThrow(() -> new NotFoundException(Message.REPORT_NOT_FOUND.toString()));
@@ -98,22 +100,65 @@ public class ReportService {
         }
     }
 
+    @Transactional
     public ReportDetailDto update(User user, Status status, Long id) {
         Report report = reportRepository.findById(id)
             .orElseThrow(() -> new NotFoundException(Message.REPORT_NOT_FOUND.toString()));
-        
-        if (canAccess(user, report)) {
-            if (user.getRole() == Role.CUSTOMER) {
-                if (status == Status.CANCELLED && (report.getStatus() == Status.NEW || report.getStatus() == Status.ASSIGNED)) {
-                    report.setStatus(status);
-                }
-            } else {
-                report.setStatus(status);
-            }
-            return toDetailDto(report); 
-        } else {
+
+        if (!canAccess(user, report)) {
             throw new InvalidCredentialsException(Message.REPORT_NO_PERMISSION.toString());
         }
+
+        Role role = user.getRole();
+
+        if (role == Role.CUSTOMER) {
+            if (status == Status.CANCELLED && (report.getStatus() == Status.NEW || report.getStatus() == Status.ASSIGNED)) {
+                report.setStatus(Status.CANCELLED);
+            } else {
+                throw new InvalidCredentialsException(Message.REPORT_NO_PERMISSION.toString());
+            }
+            return toDetailDto(report);
+        }
+
+        if (role == Role.ADMIN) {
+            report.setStatus(status);
+            return toDetailDto(report);
+        }
+
+        //if (role == Role.ATTENDANT)
+        Long me = user.getId();
+        Long assigneeId = report.getAssignedTo() != null ? report.getAssignedTo().getId() : null;
+        boolean assignedToMe = assigneeId != null && assigneeId.equals(me);
+        boolean assignedToOther = assigneeId != null && !assigneeId.equals(me);
+
+        if (assignedToOther) {
+            throw new AlreadyAssignedException(Message.REPORT_ALREADY_ASSIGNED.toString());
+        }
+
+        switch (status) {
+            case ASSIGNED -> {
+                if (report.getStatus() != Status.NEW || assigneeId != null) {
+                    throw new AlreadyAssignedException(Message.REPORT_ALREADY_ASSIGNED.toString());
+                }
+                report.setStatus(Status.ASSIGNED);
+                report.setAssignedTo(user);
+            }
+            case NEW -> {
+                if (!assignedToMe || report.getStatus() != Status.ASSIGNED) {
+                    throw new InvalidCredentialsException(Message.REPORT_NO_PERMISSION.toString());
+                }
+                report.setStatus(Status.NEW);
+                report.setAssignedTo(null);
+            }
+            case RESOLVED -> {
+                if (!assignedToMe) {
+                    throw new InvalidCredentialsException(Message.REPORT_NO_PERMISSION.toString());
+                }
+                report.setStatus(Status.RESOLVED);
+            }
+            default -> throw new InvalidCredentialsException(Message.REPORT_NO_PERMISSION.toString());
+        }
+        return toDetailDto(report);
     }
 
     private ReportDetailDto toDetailDto(Report report) {

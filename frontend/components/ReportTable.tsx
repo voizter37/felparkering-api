@@ -2,19 +2,19 @@ import { FlatList, Pressable, View, Text, ScrollView } from "react-native";
 import { prettyAddress, prettyDate } from "../utils/prettyPrinter";
 import { Dispatch, ReactElement, SetStateAction, useMemo, useState } from "react";
 import { Report } from "../types/report";
+import { parkingCategories } from "../constants/parkingCategories";
 
 type TableProps = {
     columns: string[];
     data: Report[];
-    onRowPress: React.Dispatch<React.SetStateAction<Report>>;
+    selected: Report | null;
+    onSelect: (r: Report | null) => void;
 };
 
-export default function ReportTable({ columns = [], data = [], onRowPress }: TableProps) {
-    const [selected, setSelected] = useState<Report | null>(null);
-
+export default function ReportTable({ columns = [], data = [], selected, onSelect }: TableProps) {
     const [containerWidth, setContainerWidth] = useState<number>(0);
-    const flexWeights = [1, 2, 2, 1, 2];
-    const maxWidths = [80, 300, 300, 80, 300]; 
+    const flexWeights = [1, 2, 2, 2, 1];
+    const maxWidths = [80, 300, 300, 150, 120]; 
     const FILL_INDEX = 1;
 
     const colWidths = useMemo(() => {
@@ -43,11 +43,11 @@ export default function ReportTable({ columns = [], data = [], onRowPress }: Tab
         </View>
     );
 
-    const TableRow = ({ item, onPress, isSelected }: { item: Report; onPress: Dispatch<SetStateAction<Report>>; isSelected: boolean; }) => {
+    const TableRow = ({ item, isSelected }: { item: Report; isSelected: boolean; }) => {
         const values = [
             item.id,
             prettyAddress(item.address),
-            item.category,
+            parkingCategories.find(violation => violation.value === item.category).label,
             item.status,
             prettyDate(item.createdOn),
         ];
@@ -57,10 +57,7 @@ export default function ReportTable({ columns = [], data = [], onRowPress }: Tab
         return (
             <Pressable 
                 className={`flex-row items-center ${rowBg} active:bg-gray-50 hover:bg-gray-100 transition-colors duration-50`}
-                onPress={() => {
-                    onRowPress?.(item);
-                    onPress(item);
-                }}
+                onPress={() => onSelect(isSelected ? null : item)}
             >
                 {values.map((value, index) => (
                     <View
@@ -85,7 +82,7 @@ export default function ReportTable({ columns = [], data = [], onRowPress }: Tab
                             ListHeaderComponent={<TableHeader/>}
                             ItemSeparatorComponent={() => <View className="h-[1px] bg-gray-200" />}
                             keyExtractor={({ id }) => String(id)}
-                            renderItem={({ item }) => <TableRow item={item} onPress={setSelected} isSelected={selected?.id == item.id}/>}
+                            renderItem={({ item }) => <TableRow item={item} isSelected={selected?.id === item.id}/>}
                         />
                     </View>
             </ScrollView>

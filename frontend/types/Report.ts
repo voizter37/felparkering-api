@@ -2,17 +2,14 @@ import type { ParkingViolationValue } from "../constants/parkingCategories";
 
 export interface Report {
     id: number,
-    status: string;
-    attendantGroup: any;
-    longitude: number;
-    latitude: number;
-    createdOn: string;
-    category: string;
     address: Address;
-    violation: ParkingViolationValue;
     licensePlate: string;
-    timeStamp: string;
-    coords: [number, number];
+    category: ParkingViolationValue;
+    attendantGroup: any;
+    assignedTo: number;
+    createdOn: string;
+    updatedOn: string;
+    status: string;
 }
 
 export interface Address {

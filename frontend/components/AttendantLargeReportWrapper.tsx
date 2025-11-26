@@ -65,7 +65,7 @@ export default function AttendantLargeReportWrapper({
 
     return (
         <View className="w-full">
-                <View className="relative rounded-2xl p-4 m-4 shadow-md border shadow-gray-200 border-gray-200 bg-white overflow-hidden divide-y divide-slate-100">
+                <View className="relative rounded-lg p-4 shadow-md border shadow-gray-200 border-gray-200 bg-white overflow-hidden divide-y divide-slate-100">
                     <View className="px-5 py-4">
                         <Text className="text-2xl font-semibold text-slate-900">{address}</Text>
                     </View>  

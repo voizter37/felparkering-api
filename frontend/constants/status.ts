@@ -1,0 +1,1 @@
+export const STATUSES = ["ALL", "NEW", "ASSIGNED", "RESOLVED", "CANCELLED"];

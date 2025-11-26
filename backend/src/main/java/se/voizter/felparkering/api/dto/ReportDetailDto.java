@@ -13,6 +13,7 @@ public record ReportDetailDto(
     String licensePlate,
     ParkingViolationCategory category,
     AttendantGroup attendantGroup,
+    Long assignedToId,
     Instant createdOn,
     Instant updatedOn,
     Status status

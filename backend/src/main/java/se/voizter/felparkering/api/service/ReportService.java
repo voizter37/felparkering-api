@@ -168,6 +168,7 @@ public class ReportService {
             report.getLicensePlate(),
             report.getCategory(),
             report.getAttendantGroup(),
+            report.getAssignedTo().getId(),
             report.getCreatedOn(),
             report.getUpdatedOn(),
             report.getStatus()

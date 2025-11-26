@@ -14,6 +14,7 @@ import Toast from "react-native-toast-message";
 export default function AvailableReports() {
     const [activeReport, setActiveReport] = useState<Report | null>(null);
     const [newReports, setNewReports] = useState([]);
+    const [filters, setFilters] = useState<{status?: string; from?: string; to?: string}>({});
 
     const api = useApi();
     const {user} = useUser();
@@ -45,7 +46,6 @@ export default function AvailableReports() {
 
         try {
             const update = await api.updateReport(activeReport.id, { status: "ASSIGNED" });
-            console.log(update);
             Toast.show({ type: "success", text1: getApiMessage(update) });
             const res = await api.getReports();
             setNewReports(res.data);
@@ -60,13 +60,9 @@ export default function AvailableReports() {
     };
 
     return (
-        <View className="flex-column h-full bg-park-background">
-            <View className="m-4">
-                <Text className="text-2xl">Active reports</Text>  
-            </View>
-
-            <View className="flex-row">
-                <View className="w-4/6">
+        <View className="flex-1 bg-park-background">
+            <View className="flex-row mt-4 px-4 gap-4">
+                <View className="flex-[2]">
                     <ReportTable 
                         columns={["Id", "Address", "Violation", "Status", "Date"]}
                         data={newReports}
@@ -75,7 +71,7 @@ export default function AvailableReports() {
                     />
                 </View>
                 {activeReport ? ( 
-                    <><View className="border my-4 border-slate-200"></View><View className="w-2/6">
+                    <><View className="flex-1">
                         <AttendantLargeReportWrapper
                             primaryLabel="Accept"
                             primaryAction={handleAccept}

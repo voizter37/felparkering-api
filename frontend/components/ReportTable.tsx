@@ -48,7 +48,7 @@ export default function ReportTable({ columns = [], data = [], selected, onSelec
                     className={"p-4 border-b border-slate-200 bg-slate-50 flex-row items-center gap-1"}
                 >
                     <Text 
-                        className="text-sm uppercase font-normal leading-none text-slate-500" 
+                        className="text-sm uppercase font-semibold leading-none text-slate-500" 
                         numberOfLines={1} 
                         ellipsizeMode="tail"
                         selectable={false}

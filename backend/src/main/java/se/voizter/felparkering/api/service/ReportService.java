@@ -1,24 +1,19 @@
 package se.voizter.felparkering.api.service;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import jakarta.annotation.Nullable;
 import jakarta.transaction.Transactional;
 import se.voizter.felparkering.api.dto.ReportDetailDto;
 import se.voizter.felparkering.api.dto.ReportRequest;
+import se.voizter.felparkering.api.dto.UserRequest;
 import se.voizter.felparkering.api.enums.Message;
-import se.voizter.felparkering.api.enums.ParkingViolationCategory;
 import se.voizter.felparkering.api.enums.Role;
 import se.voizter.felparkering.api.enums.Status;
+import se.voizter.felparkering.api.exception.exceptions.AlreadyAssignedException;
 import se.voizter.felparkering.api.exception.exceptions.InvalidCredentialsException;
-import se.voizter.felparkering.api.exception.exceptions.InvalidRequestException;
 import se.voizter.felparkering.api.exception.exceptions.NotFoundException;
 import se.voizter.felparkering.api.model.Address;
 import se.voizter.felparkering.api.model.AttendantGroup;
@@ -27,6 +22,7 @@ import se.voizter.felparkering.api.model.User;
 import se.voizter.felparkering.api.repository.AddressRepository;
 import se.voizter.felparkering.api.repository.AttendantGroupRepository;
 import se.voizter.felparkering.api.repository.ReportRepository;
+import se.voizter.felparkering.api.repository.UserRepository;
 
 @Service
 public class ReportService {
@@ -34,23 +30,36 @@ public class ReportService {
     private final AddressRepository addressRepository;
     private final ReportRepository reportRepository;
     private final AttendantGroupRepository groupRepository;
+    private final UserRepository userRepository;
 
-    public ReportService(AddressRepository addressRepository, ReportRepository reportRepository, AttendantGroupRepository groupRepository) {
+    public ReportService(AddressRepository addressRepository, ReportRepository reportRepository, AttendantGroupRepository groupRepository, UserRepository userRepository) {
         this.addressRepository = addressRepository;
         this.reportRepository = reportRepository;
         this.groupRepository = groupRepository;
+        this.userRepository = userRepository;
     }
 
     @Transactional
-    public List<ReportDetailDto> getAll(User user) {
+    public List<ReportDetailDto> getAll(User user, @Nullable Status status, @Nullable UserRequest assignedTo) {
         Role role = user.getRole();
 
-        List<Report> reports = switch (role) {
-            case ADMIN -> reportRepository.findAll();
-            case ATTENDANT -> reportRepository.findByAttendantGroup(user.getAttendantGroup());
-            case CUSTOMER -> reportRepository.findByCreatedBy(user);
-            default -> List.of();
-        };
+        User attendant = assignedTo != null ? userRepository.findByEmail(assignedTo.email())
+            .orElseThrow(() -> new NotFoundException(Message.USER_NOT_FOUND.toString())) : null;
+
+        List<Report> reports;
+
+        switch (role) {
+            case ADMIN -> {
+                reports = reportRepository.findbyFilters(status);
+            }
+            case ATTENDANT -> {
+                reports = reportRepository.findbyFiltersInGroup(status, attendant, user.getAttendantGroup());
+            }
+            case CUSTOMER -> {
+                reports = reportRepository.findbyFiltersCreatedBy(status, user);
+            }
+            default -> throw new InvalidCredentialsException(Message.REPORT_NO_PERMISSION.toString());
+        }
 
         return reports.stream().map(this::toDetailDto).toList();
     }
@@ -62,11 +71,8 @@ public class ReportService {
         }
 
         Address address = resolveAddress(request);
-
         Report report = new Report();
-        report.setLocation(request.street() + " " + request.houseNumber() + ", " + request.city());
-        report.setLatitude(address.getLatitude());
-        report.setLongitude(address.getLongitude());
+        report.setAddress(address);
         report.setLicensePlate(request.licensePlate().toUpperCase());
         report.setCategory(request.category());
         report.setCreatedBy(user);
@@ -82,6 +88,7 @@ public class ReportService {
         return toDetailDto(report);
     }
 
+    @Transactional
     public ReportDetailDto get(User user, Long id) {
         Report report = reportRepository.findById(id)
             .orElseThrow(() -> new NotFoundException(Message.REPORT_NOT_FOUND.toString()));
@@ -93,30 +100,75 @@ public class ReportService {
         }
     }
 
+    @Transactional
     public ReportDetailDto update(User user, Status status, Long id) {
         Report report = reportRepository.findById(id)
             .orElseThrow(() -> new NotFoundException(Message.REPORT_NOT_FOUND.toString()));
-        
-        if (canAccess(user, report)) {
-            if (user.getRole() == Role.CUSTOMER) {
-                if (status == Status.CANCELLED && (report.getStatus() == Status.NEW || report.getStatus() == Status.ASSIGNED)) {
-                    report.setStatus(status);
-                }
-            } else {
-                report.setStatus(status);
-            }
-            return toDetailDto(report); 
-        } else {
+
+        if (!canAccess(user, report)) {
             throw new InvalidCredentialsException(Message.REPORT_NO_PERMISSION.toString());
         }
+
+        Role role = user.getRole();
+
+        if (role == Role.CUSTOMER) {
+            if (status == Status.CANCELLED && (report.getStatus() == Status.NEW || report.getStatus() == Status.ASSIGNED)) {
+                report.setStatus(Status.CANCELLED);
+            } else {
+                throw new InvalidCredentialsException(Message.REPORT_NO_PERMISSION.toString());
+            }
+            return toDetailDto(report);
+        }
+
+        if (role == Role.ADMIN) {
+            report.setStatus(status);
+            return toDetailDto(report);
+        }
+
+        //if (role == Role.ATTENDANT)
+        Long me = user.getId();
+        Long assigneeId = report.getAssignedTo() != null ? report.getAssignedTo().getId() : null;
+        boolean assignedToMe = assigneeId != null && assigneeId.equals(me);
+        boolean assignedToOther = assigneeId != null && !assigneeId.equals(me);
+
+        if (assignedToOther) {
+            throw new AlreadyAssignedException(Message.REPORT_ALREADY_ASSIGNED.toString());
+        }
+
+        switch (status) {
+            case ASSIGNED -> {
+                if (report.getStatus() != Status.NEW || assigneeId != null) {
+                    throw new AlreadyAssignedException(Message.REPORT_ALREADY_ASSIGNED.toString());
+                }
+                report.setStatus(Status.ASSIGNED);
+                report.setAssignedTo(user);
+            }
+            case NEW -> {
+                if (!assignedToMe || report.getStatus() != Status.ASSIGNED) {
+                    throw new InvalidCredentialsException(Message.REPORT_NO_PERMISSION.toString());
+                }
+                report.setStatus(Status.NEW);
+                report.setAssignedTo(null);
+            }
+            case RESOLVED -> {
+                if (!assignedToMe) {
+                    throw new InvalidCredentialsException(Message.REPORT_NO_PERMISSION.toString());
+                }
+                report.setStatus(Status.RESOLVED);
+            }
+            default -> throw new InvalidCredentialsException(Message.REPORT_NO_PERMISSION.toString());
+        }
+        return toDetailDto(report);
     }
 
     private ReportDetailDto toDetailDto(Report report) {
         return new ReportDetailDto(
             report.getId(),
-            report.getLocation(),
+            report.getAddress(),
             report.getLicensePlate(),
             report.getCategory(),
+            report.getAttendantGroup(),
+            report.getAssignedTo().getId(),
             report.getCreatedOn(),
             report.getUpdatedOn(),
             report.getStatus()
@@ -124,13 +176,16 @@ public class ReportService {
     }
 
     private Address resolveAddress(ReportRequest request) {
-        Optional<Address> maybeAddress = addressRepository.findById(request.id());
+        Address address = addressRepository.findById(request.id())
+            .orElseThrow(() -> new NotFoundException(Message.ADDRESS_NOT_FOUND.toString()));;
 
-        if (!addressRepository.existsByStreetIgnoreCase(request.street()) || maybeAddress.isEmpty()) {
-            throw new NotFoundException(Message.ADDRESS_NOT_FOUND.toString());
+        if (request.houseNumber() != null && !request.houseNumber().isBlank()) {
+            address.setHouseNumbers(List.of(request.houseNumber()));
+        } else {
+            address.setHouseNumbers(List.of());
         }
 
-        return maybeAddress.get();
+        return address;
     }
 
     private boolean canAccess(User user, Report report) {

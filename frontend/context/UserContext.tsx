@@ -1,5 +1,5 @@
 import { createContext, ReactNode, useContext, useEffect, useRef, useState } from "react";
-import { User } from "../types/User";
+import { User } from "../types/user";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { decodeJwt, sanitizeToken } from "../utils/decodeJwt";
 import { Text } from "react-native";

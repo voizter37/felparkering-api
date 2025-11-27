@@ -22,3 +22,5 @@ export const parkingCategories = [
     { index: "20", label: "Other reason stated on notice", value: "OTHER_STATED_ON_NOTICE" },
     { index: "21", label: "Valid ticket and disc both required – both missing", value: "TICKET_AND_DISC_MISSING" }
 ]
+
+export type ParkingViolationValue = typeof parkingCategories[number]["value"];

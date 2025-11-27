@@ -6,8 +6,8 @@ import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 import ReportWrapper from "../../components/ReportWrapper";
 import { useUser } from '../../context/UserContext';
 import { useFocusEffect, useRouter } from 'expo-router';
-import { parkingCategories } from '../../types/parkingCategories';
-
+import { parkingCategories } from '../../constants/parkingCategories';
+import { prettyAddress } from '../../utils/prettyPrinter';
 
 export default function Reports() {
     const [reports, setReports] = useState([]);
@@ -27,7 +27,7 @@ export default function Reports() {
         useCallback(() => {
         const fetchReports = async () => {
             try {
-                const response = await api.getAllReports();
+                const response = await api.getReports();
                 setReports(response.data);
             } catch (error: any) {
                 if (axios.isAxiosError(error) && error.response) {
@@ -49,7 +49,7 @@ export default function Reports() {
                             return (
                                 <ReportWrapper
                                 key={report.id}
-                                address={report.location} 
+                                address={prettyAddress(report.address)} 
                                 licensePlate={report.licensePlate} 
                                 violation={parkingCategories.find(item => item.value === report.category)?.label ?? "Unknown violation"} 
                                 status={report.status}

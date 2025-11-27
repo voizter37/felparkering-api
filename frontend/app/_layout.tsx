@@ -1,19 +1,22 @@
 import { Stack } from "expo-router";
 import { UserProvider } from "../context/UserContext";
 import AuthRedirector from "../components/AuthRedirector";
+import { PaperProvider } from 'react-native-paper';
 
 export default function RootLayout() {
   	return (
 		<UserProvider>
-			<AuthRedirector />
-			<Stack screenOptions={{
-				headerShown: false,
-			}}>
-				<Stack.Screen name="index" options={{ headerShown: false }} />
-				<Stack.Screen name="home" options={{ headerShown: false }} />
-				<Stack.Screen name="attendant" options={{ headerShown: false }} />
-				<Stack.Screen name="admin" options={{ headerShown: false }} />
-			</Stack>  
+			<PaperProvider>
+				<AuthRedirector />
+				<Stack screenOptions={{
+					headerShown: false,
+				}}>
+					<Stack.Screen name="index" options={{ headerShown: false }} />
+					<Stack.Screen name="home" options={{ headerShown: false }} />
+					<Stack.Screen name="attendant" options={{ headerShown: false }} />
+					<Stack.Screen name="admin" options={{ headerShown: false }} />
+				</Stack>  
+			</PaperProvider>
 		</UserProvider>
   	);
 }

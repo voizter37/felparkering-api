@@ -6,7 +6,7 @@ import { useApi } from "../services/api";
 import { Text } from "react-native";
 import Toast from 'react-native-toast-message';
 import FormDropdown from "./FormDropdown";
-import { parkingCategories } from "../types/parkingCategories";
+import { parkingCategories } from "../constants/parkingCategories";
 
 
 export default function ReportForm() {
@@ -86,8 +86,8 @@ export default function ReportForm() {
                 street: selectedAddressObj.street,
                 houseNumber: selectedAddressObj.houseNumber,
                 city: selectedAddressObj.city,
-                licensePlate, 
-                violation
+                licensePlate: licensePlate, 
+                category: violation
             })
 
             Toast.show({

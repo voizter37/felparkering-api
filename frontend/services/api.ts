@@ -2,6 +2,32 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { useUser } from "../context/UserContext";
 
+export function getApiMessage(input: any, fallback = "Something went wrong") {
+    if (!input) return fallback;
+    
+    const axiosMsg =
+        input?.response?.data?.error ??
+        input?.response?.data?.message ??
+        input?.response?.data ??
+        input?.response ??
+        undefined;
+    
+    if (typeof axiosMsg === "string") return axiosMsg;
+
+    const directMsg = 
+        input?.data?.error ??
+        input?.data?.message ??
+        undefined;
+    
+    if (typeof directMsg === "string") return directMsg;
+
+    if (typeof input === "string") return input;
+
+    if (input instanceof Error) return input.message;
+
+    return fallback;
+}
+
 export function useApi() {
     const { setUser } = useUser();
 
@@ -11,7 +37,6 @@ export function useApi() {
         headers: {
             'Content-Type': 'application/json'
         },
-        withCredentials: true
     });
 
     api.interceptors.request.use(
@@ -27,7 +52,7 @@ export function useApi() {
     api.interceptors.response.use(
         response => response,
         async error => {
-            if (error.response?.status === 401 || error.response?.status === 403) {
+            if (error.response?.status === 401) {
                 await AsyncStorage.removeItem("token");
                 setUser(null);
             }
@@ -39,15 +64,20 @@ export function useApi() {
         login: (data: any) => api.post('/login', data),
         register: (data: any) => api.post('/register', data),
         createReport: (data: any) => api.post('/reports', data),
-        getAllReports: () => api.get('/reports'),
-        getReport: (id: any) => api.get(`/reports/${id}`),
-        updateReport: (id: any, data: any) => api.put(`/reports/${id}`, data),
+        getReports: (params?: {status?: string, assignedTo?: string}) => api.get('/reports', {
+            params: {
+                status: params?.status,
+                assignedTo: params?.assignedTo,
+            },
+        }),
+        getReport: (id: number) => api.get(`/reports/${id}`),
+        updateReport: (id: number, data: { status: string }) => api.put(`/reports/${id}`, data),
         createAttendant: (data: any) => api.post('admin/attendant', data),
         getAllUsers: () => api.get('/admin/users'),
-        deleteUser: (id: any) => api.delete(`/admin/users/${id}`),
+        deleteUser: (id: number) => api.delete(`/admin/users/${id}`),
         createAttendantGroup: (data: any) => api.post('/attendants', data),
         getAllAttendantGroups: () => api.get('/attendants'),
-        deleteAttendantGroup: (id: any) => api.delete(`/attendants/${id}`),
+        deleteAttendantGroup: (id: number) => api.delete(`/attendants/${id}`),
         searchAddress: (query: string) => api.get(`/addresses/search`, { params: { query } }),
         getRoute: (payload: { start: [number, number]; end: [number, number] }, cfg?: any) => api.post('/addresses/route', payload, cfg),
     };

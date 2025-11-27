@@ -1,17 +1,20 @@
-import { ScrollView, View, Text } from "react-native";
-import AttendantReportWrapper from "../../components/AttendantReportWrapper";
+import { View, Text } from "react-native";
 import AttendantLargeReportWrapper from "../../components/AttendantLargeReportWrapper";
 import { useCallback, useEffect, useState } from "react";
-import { Report } from "../../types/Report";
+import { Report } from "../../types/report";
 import { router, useFocusEffect } from "expo-router";
-import { useApi } from "../../services/api";
+import { getApiMessage, useApi } from "../../services/api";
 import axios from "axios";
-import { parkingCategories } from "../../types/parkingCategories";
+import { parkingCategories } from "../../constants/parkingCategories";
 import { useUser } from "../../context/UserContext";
+import { prettyAddress } from "../../utils/prettyPrinter";
+import ReportTable from "../../components/ReportTable";
+import Toast from "react-native-toast-message";
 
 export default function AvailableReports() {
     const [activeReport, setActiveReport] = useState<Report | null>(null);
     const [newReports, setNewReports] = useState([]);
+    const [filters, setFilters] = useState<{status?: string; from?: string; to?: string}>({});
 
     const api = useApi();
     const {user} = useUser();
@@ -26,55 +29,64 @@ export default function AvailableReports() {
         useCallback(() => {
         const fetchNewReports = async () => {
             try {
-                const response = await api.getAllReports();
+                const response = await api.getReports();
                 setNewReports(response.data);
             } catch (error: any) {
                 if (axios.isAxiosError(error) && error.response) {
                     console.log(error.response.data.error);
                 }
-            }};
-
-            fetchNewReports();
+            }
+        };
+        fetchNewReports();
         }, [])
     );
 
-    return (
-        <View className="flex-row h-full bg-park-background">
-            <ScrollView className="w-1/4">
-                <View className="m-4 items-center">
-                    <Text className="text-3xl">Active reports</Text>  
-                </View>
-                
-                {newReports.map((report) => {
-                    return (
-                        <AttendantReportWrapper
-                            key={report.id}
-                            address={report.location} 
-                            licensePlate={report.licensePlate} 
-                            violation={parkingCategories.find(item => item.value === report.category)?.label ?? "Unknown violation"} 
-                            timeStamp={report.createdOn}
-                            onPress={() => setActiveReport(report)}
-                            selected={activeReport?.location === report.location && activeReport?.licensePlate === report.licensePlate}
-                        />
-                    );
-                })}
-            </ScrollView>
-            <View className="border my-4 border-slate-200"></View>
-            <View className="w-3/4">
-                {activeReport ? (<AttendantLargeReportWrapper 
-                    address={activeReport.location}
-                    hq={activeReport.attendantGroup.name}
-                    licensePlate={activeReport.licensePlate}
-                    violation={parkingCategories.find(item => item.value === activeReport.category)?.label ?? "Unknown violation"}
-                    timeStamp={activeReport.createdOn}
-                    coords={[activeReport.latitude, activeReport.longitude]}      
-                />
-                ) : (
-                    <View className="flex-1 rounded-lg items-center justify-center m-4 p-4 bg-gray-300">
-                        <Text className="text-3xl">Select a report...</Text>
-                    </View>
-                )}   
+    const handleAccept = async () => {
+        if (!activeReport) return;
 
+        try {
+            const update = await api.updateReport(activeReport.id, { status: "ASSIGNED" });
+            Toast.show({ type: "success", text1: getApiMessage(update) });
+            const res = await api.getReports();
+            setNewReports(res.data);
+            setActiveReport(null);
+        } catch (error) {
+            Toast.show({ type: "error", text1: getApiMessage(error) });
+        } 
+    };
+
+    const handleCancel = () => {
+        setActiveReport(null);
+    };
+
+    return (
+        <View className="flex-1 bg-park-background">
+            <View className="flex-row mt-4 px-4 gap-4">
+                <View className="flex-[2]">
+                    <ReportTable 
+                        columns={["Id", "Address", "Violation", "Status", "Date"]}
+                        data={newReports}
+                        selected={activeReport}
+                        onSelect={setActiveReport}
+                    />
+                </View>
+                {activeReport ? ( 
+                    <><View className="flex-1">
+                        <AttendantLargeReportWrapper
+                            primaryLabel="Accept"
+                            primaryAction={handleAccept}
+                            secondaryLabel="Cancel"
+                            secondaryAction={handleCancel}
+                            address={prettyAddress(activeReport.address)}
+                            hq={activeReport.attendantGroup.name}
+                            licensePlate={activeReport.licensePlate}
+                            violation={parkingCategories.find(item => item.value === activeReport.category)?.label ?? "Unknown violation"}
+                            timeStamp={activeReport.createdOn}
+                            coords={[activeReport.address.latitude, activeReport.address.longitude]} />
+                    </View></>
+                ) : (
+                    <></>
+                )}
             </View>
         </View>
     )
